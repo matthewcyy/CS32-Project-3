@@ -23,6 +23,7 @@ public:
 private:
     std::list<Actor*> livingActors;
     Actor* playerPtr;
+    int lastAddedWhiteY;
 };
 
 #endif // STUDENTWORLD_H_

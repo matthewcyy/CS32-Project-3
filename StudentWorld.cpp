@@ -16,6 +16,7 @@ StudentWorld::StudentWorld(string assetPath)
 : GameWorld(assetPath)
 {
     playerPtr = nullptr;
+    lastAddedWhiteY = 220;
 }
 
 int StudentWorld::init()
@@ -74,33 +75,25 @@ int StudentWorld::move()
         else
             actorIt++;
     }
-    list<Actor*> :: iterator lastWhite;
-    lastWhite = livingActors.end();
-    lastWhite--;
-    while (lastWhite != livingActors.begin())
-    {
-        if ((*lastWhite)->canMoveDownScreenAndWhite())
-            break; // Finding the last added white border
-        else
-            lastWhite--;
-    }
-    double lastAdded_y = (*lastWhite)->getY();
+    double lastAdded_y = lastAddedWhiteY;
     double new_border_y = VIEW_HEIGHT - SPRITE_HEIGHT;
     double delta_y = new_border_y - lastAdded_y;
     if (delta_y >= SPRITE_HEIGHT)
     {
-        Actor *newLeftYellow = new BorderLine(this, (*lastWhite)->getPlayer(), false, IID_YELLOW_BORDER_LINE, LEFT_EDGE, new_border_y);
-        Actor *newRightYellow = new BorderLine(this, (*lastWhite)->getPlayer(), false, IID_YELLOW_BORDER_LINE, RIGHT_EDGE, new_border_y);
+        Actor *newLeftYellow = new BorderLine(this, getPlayerPtr(), false, IID_YELLOW_BORDER_LINE, LEFT_EDGE, new_border_y);
+        Actor *newRightYellow = new BorderLine(this, getPlayerPtr(), false, IID_YELLOW_BORDER_LINE, RIGHT_EDGE, new_border_y);
         livingActors.push_back(newLeftYellow);
         livingActors.push_back(newRightYellow);
     }
     if (delta_y >= 4*SPRITE_HEIGHT)
     {
-        Actor *newLeftWhite = new BorderLine(this, (*lastWhite)->getPlayer(),true, IID_WHITE_BORDER_LINE, LEFT_EDGE + ROAD_WIDTH/3, new_border_y);
-        Actor *newRightWhite = new BorderLine(this, (*lastWhite)->getPlayer(), true, IID_WHITE_BORDER_LINE, RIGHT_EDGE - ROAD_WIDTH/3, new_border_y);
+        Actor *newLeftWhite = new BorderLine(this, getPlayerPtr(),true, IID_WHITE_BORDER_LINE, LEFT_EDGE + ROAD_WIDTH/3, new_border_y);
+        Actor *newRightWhite = new BorderLine(this, getPlayerPtr(), true, IID_WHITE_BORDER_LINE, RIGHT_EDGE - ROAD_WIDTH/3, new_border_y);
         livingActors.push_back(newLeftWhite);
         livingActors.push_back(newRightWhite);
+        lastAddedWhiteY = 244 + 4;
     }
+    lastAddedWhiteY -= (4 + getPlayerPtr()->getForwardSpeed());
     return GWSTATUS_CONTINUE_GAME;
 }
 
