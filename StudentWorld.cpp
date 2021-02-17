@@ -15,12 +15,13 @@ GameWorld* createStudentWorld(string assetPath)
 StudentWorld::StudentWorld(string assetPath)
 : GameWorld(assetPath)
 {
-    
+    playerPtr = nullptr;
 }
 
 int StudentWorld::init()
 {
     Actor *playerPtr = new GhostRacer(this, nullptr, 128, 32, 90, 4.0, 0);
+    setPlayerPtr(playerPtr);
     livingActors.push_back(playerPtr);
     for (int i = 0; i < VIEW_HEIGHT/(SPRITE_HEIGHT); i++)
     {
@@ -47,8 +48,20 @@ int StudentWorld::move()
     actorIt = livingActors.begin();
     while (actorIt != livingActors.end())
     {
-        (*actorIt)->doSomething(); // Having all actors do something
-        actorIt++;
+        if ((*actorIt)->isAlive())
+        {
+            (*actorIt)->doSomething(); // Having all actors do something
+            if (playerPtr->getHealth() <= 0)
+            {
+                playerPtr->setAlive(false);
+                decLives();
+                return GWSTATUS_PLAYER_DIED;
+            }
+            actorIt++;
+        }
+        else
+            actorIt++;
+
     }
     actorIt = livingActors.begin();
     while (actorIt != livingActors.end())

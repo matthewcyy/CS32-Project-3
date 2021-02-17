@@ -16,10 +16,13 @@ public:
     virtual int init();
     virtual int move();
     virtual void cleanUp();
+    Actor* getPlayerPtr() {return playerPtr;};
+    void setPlayerPtr(Actor* racerPtr) {playerPtr = racerPtr;};
     ~StudentWorld();
 
 private:
     std::list<Actor*> livingActors;
+    Actor* playerPtr;
 };
 
 #endif // STUDENTWORLD_H_

@@ -18,6 +18,7 @@ public:
     void changeHealth(int change) {m_health += change;};
     bool isAlive() {return m_isAlive;};
     void setAlive(bool alive) {m_isAlive = alive;};
+    int getHealth() {return m_health;};
     virtual bool isCollisionAvoidanceActor() {return false;};
     virtual bool canMoveDownScreenAndWhite() {return false;}; // Is false for all non-borderlines
     virtual int getForwardSpeed() {return 0;};

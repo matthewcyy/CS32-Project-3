@@ -33,11 +33,6 @@ Projectile::Projectile(StudentWorld* sp, Actor* playerPtr, double startX, double
     
 }
 
-void Projectile::doSomething()
-{
-    
-}
-
 void BorderLine::doSomething()
 {
     double vert_speed = getVertSpeed() - getPlayer()->getForwardSpeed();
@@ -85,7 +80,7 @@ void GhostRacer::doSomething()
     {
         switch(ch)
         {
-            /*
+                /*
             case KEY_PRESS_SPACE:
                 if (m_numSprays >= 1)
                 {
@@ -93,12 +88,12 @@ void GhostRacer::doSomething()
                     double cur_x = getX();
                     double delta_x = cos(this->getDirection()*M_PI/180)*SPRITE_HEIGHT;
                     double delta_y = sin(this->getDirection()*M_PI/180)*SPRITE_HEIGHT;
-                    Actor* newSpray = new Projectile(this->getWorld(), this, IID_HOLY_WATER_PROJECTILE, (this->getX() + delta_x), (this->getY() + delta_y), this->getDirection());
+                    Actor* newSpray = new Projectile(this->getWorld(), this, (this->getX() + delta_x), (this->getY() + delta_y), this->getDirection());
                     getWorld()->playSound(SOUND_PLAYER_SPRAY);
                     m_numSprays--;
                 }
                 break;
-             */
+                 */
             case KEY_PRESS_LEFT:
                 if (getDirection() < 114)
                     setDirection(getDirection() + 8);
@@ -124,4 +119,8 @@ void GhostRacer::doSomething()
     moveTo(cur_x + delta_x, cur_y);
 }
 
-
+void Projectile::doSomething()
+{
+    if (!(this->isAlive()))
+        return;
+}
