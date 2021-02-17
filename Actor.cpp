@@ -5,17 +5,18 @@
 #include <math.h>
 
 // Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
-Actor::Actor(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY, int dir, double size, unsigned int depth) : GraphObject(imageID, startX, startY, dir, size, depth)
+Actor::Actor(StudentWorld* sp, Actor* playerPtr, int health, int vertSpeed, int horizSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth) : GraphObject(imageID, startX, startY, dir, size, depth)
 {
     worldPtr = sp;
     GhostRacerPtr = playerPtr;
+    m_health = health;
     m_isAlive = true;
+    m_verticalSpeed = vertSpeed;
+    m_horizontalSpeed = horizSpeed;
 }
 
-BorderLine::BorderLine(StudentWorld* sp, Actor* playerPtr, bool isWhite, int imageID, double startX, double startY, int dir, double size, unsigned int depth) : Actor(sp, playerPtr, imageID, startX, startY, dir, size, depth)
+BorderLine::BorderLine(StudentWorld* sp, Actor* playerPtr, bool isWhite, int imageID, double startX, double startY, int dir, double size, unsigned int depth) : Actor(sp, playerPtr, 0, -4, 0, imageID, startX, startY, dir, size, depth)
 {
-    m_verticalSpeed = -4;
-    m_horizontalSpeed = 0;
     m_white = isWhite;
 }
 
@@ -27,7 +28,7 @@ bool BorderLine::canMoveDownScreenAndWhite()
         return false;
 }
 
-Projectile::Projectile(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY, int dir, double size, unsigned int depth) : Actor(sp, playerPtr, imageID, startX, startY, dir, size, depth)
+Projectile::Projectile(StudentWorld* sp, Actor* playerPtr, double startX, double startY, int dir, double size, unsigned int depth) : Actor(sp, playerPtr, 0, 0, 0, IID_HOLY_WATER_PROJECTILE, startX, startY, dir, size, depth)
 {
     
 }
@@ -39,8 +40,8 @@ void Projectile::doSomething()
 
 void BorderLine::doSomething()
 {
-    double vert_speed = m_verticalSpeed - getPlayer()->getSpeed();
-    double horiz_speed = m_horizontalSpeed;
+    double vert_speed = getVertSpeed() - getPlayer()->getForwardSpeed();
+    double horiz_speed = getHorizSpeed();
     double new_y = (this->getY() + vert_speed);
     double new_x = (this->getX() + horiz_speed);
     this->moveTo(new_x, new_y);
@@ -51,13 +52,7 @@ void BorderLine::doSomething()
     }        
 }
 
-mortalActor::mortalActor(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY, int dir, double size, unsigned int depth, int health, bool alive) : Actor(sp, playerPtr, imageID, startX, startY, dir, size, depth)
-{
-    m_alive = true;
-    m_health = health;
-}
-
-GhostRacer::GhostRacer(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY, int dir, double size, unsigned int depth) : mortalActor(sp, playerPtr, imageID, startX, startY, dir, size, depth, 100, true)
+GhostRacer::GhostRacer(StudentWorld* sp, Actor* playerPtr, double startX, double startY, int dir, double size, unsigned int depth) : Actor(sp, playerPtr, 100, 0, 0, IID_GHOST_RACER, startX, startY, dir, size, depth)
 {
     m_numSprays = 10;
     m_forwardSpeed = 0;

@@ -7,7 +7,7 @@ using namespace std;
 
 GameWorld* createStudentWorld(string assetPath)
 {
-	return new StudentWorld(assetPath);
+    return new StudentWorld(assetPath);
 }
 
 // Students:  Add code to this file, StudentWorld.h, Actor.h, and Actor.cpp
@@ -20,7 +20,7 @@ StudentWorld::StudentWorld(string assetPath)
 
 int StudentWorld::init()
 {
-    Actor *playerPtr = new GhostRacer(this, nullptr, IID_GHOST_RACER, 128, 32, 90, 4.0, 0);
+    Actor *playerPtr = new GhostRacer(this, nullptr, 128, 32, 90, 4.0, 0);
     livingActors.push_back(playerPtr);
     for (int i = 0; i < VIEW_HEIGHT/(SPRITE_HEIGHT); i++)
     {
@@ -96,7 +96,10 @@ void StudentWorld::cleanUp()
     list<Actor*> :: iterator actorIt;
     actorIt = livingActors.begin();
     while (actorIt != livingActors.end())
+    {
+        delete (*actorIt);
         actorIt = livingActors.erase(actorIt); // Deleting all actors
+    }
 }
 
 StudentWorld::~StudentWorld()
