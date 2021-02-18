@@ -22,6 +22,7 @@ StudentWorld::StudentWorld(string assetPath)
 
 int StudentWorld::init()
 {
+    lastAddedWhiteY = 220; // Have this here b/c otherwise if you lose a life and then it restarts, the first added white border line will not be spaced right
     Actor *playerPtr = new GhostRacer(this, nullptr, 128, 32, 90, 4.0, 0);
     setPlayerPtr(playerPtr);
     livingActors.push_back(playerPtr);
@@ -104,14 +105,23 @@ int StudentWorld::move()
     }
     lastAddedWhiteY -= (4 + getPlayerPtr()->getVertSpeed());
     
+    // Adding zombie Peds
+    int pedY = VIEW_HEIGHT;
+    
+    int ChanceZombiePed = max(100 - L * 10, 20);
+    if (randInt(0, ChanceZombiePed) == 0)
+    {
+        int zombieX = randInt(0, VIEW_WIDTH);
+        Actor *newZombiePed = new ZombiePedestrian(this, getPlayerPtr(), zombieX, pedY);
+        livingActors.push_back(newZombiePed);
+    }
+    
     // Adding human Peds
     int ChanceHumanPed = max(200 - L * 10, 30);
-    int chanceNum = randInt(0, ChanceHumanPed);
-    if (chanceNum == 0)
+    if (randInt(0, ChanceHumanPed) == 0)
     {
         int humanX = randInt(0, VIEW_WIDTH);
-        int humanY = VIEW_HEIGHT;
-        Actor *newHumanPed = new HumanPedestrian(this, getPlayerPtr(), humanX, humanY);
+        Actor *newHumanPed = new HumanPedestrian(this, getPlayerPtr(), humanX, pedY);
         livingActors.push_back(newHumanPed);
     }
     return GWSTATUS_CONTINUE_GAME;

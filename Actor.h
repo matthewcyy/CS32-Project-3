@@ -82,6 +82,7 @@ public:
     virtual bool isCollisionAvoidanceActor() {return true;};
     int getMovePlan() {return m_movementPlanDist;};
     void setMovePlan(int setMove) {m_movementPlanDist = setMove;};
+    void commonMovePlan();
 
 private:
     int m_movementPlanDist;
@@ -99,6 +100,8 @@ class ZombiePedestrian: public Pedestrian
 public:
     ZombiePedestrian(StudentWorld* sp, Actor* playerPtr, double startX, double startY);
     virtual void doSomething();
+private:
+    int m_ticks;
 };
 
 #endif // ACTOR_H_

@@ -64,6 +64,19 @@ Pedestrian::Pedestrian(StudentWorld* sp, Actor* playerPtr, int imageID, double s
     m_movementPlanDist = 0;
 }
 
+void Pedestrian::commonMovePlan()
+{
+    int newHorizSpeed = 0;
+    while (newHorizSpeed == 0)
+        newHorizSpeed = randInt(-3,3);
+    setHorizSpeed(newHorizSpeed);
+    setMovePlan(randInt(4, 32));
+    if (getHorizSpeed() < 0)
+        setDirection(180);
+    else
+        setDirection(0);
+}
+
 HumanPedestrian::HumanPedestrian(StudentWorld* sp, Actor* playerPtr, double startX, double startY) : Pedestrian(sp, playerPtr, IID_HUMAN_PED, startX, startY, 2)
 {
     
@@ -83,27 +96,53 @@ void HumanPedestrian::doSomething()
     if (getMovePlan() > 0)
         return;
     else
-    {
-        int newHorizSpeed = 0;
-        while (newHorizSpeed == 0)
-            newHorizSpeed = randInt(-3,3);
-        setHorizSpeed(newHorizSpeed);
-        setMovePlan(randInt(4, 32));
-        if (getHorizSpeed() < 0)
-            setDirection(180);
-        else
-            setDirection(0);
-    }
+        commonMovePlan();
 }
 
 ZombiePedestrian::ZombiePedestrian(StudentWorld* sp, Actor* playerPtr, double startX, double startY) : Pedestrian(sp, playerPtr, IID_ZOMBIE_PED, startX, startY, 3)
 {
-    
+    m_ticks = 0;
 }
 
 void ZombiePedestrian::doSomething()
 {
-    
+    if (!isAlive())
+        return;
+    if (isOverlap(this, getPlayer()))
+    {
+        getPlayer()->changeHealth(-5);
+        changeHealth(-2);
+        if (getHealth() <= 0)
+            setAlive(false);
+    }
+    int playerX = getPlayer()->getX();
+    int playerY = getPlayer()->getY();
+    int zombieX = getX();
+    int zombieY = getY();
+    if (abs(playerX - zombieX) <= 30 && zombieY > playerY)
+    {
+        setDirection(270);
+        if (zombieX < playerX)
+            setHorizSpeed(-1);
+        else if (zombieX > playerX)
+            setHorizSpeed(1);
+        else
+            setHorizSpeed(0);
+        m_ticks--;
+        if (m_ticks <= 0)
+        {
+            getWorld()->playSound(SOUND_ZOMBIE_ATTACK);
+            m_ticks = 20;
+        }
+    }
+    commonMove();
+    if (getMovePlan() > 0)
+    {
+        setMovePlan(getMovePlan() - 1);
+        return;
+    }
+    else
+        commonMovePlan();
 }
 
 GhostRacer::GhostRacer(StudentWorld* sp, Actor* playerPtr, double startX, double startY, int dir, double size, unsigned int depth) : Actor(sp, playerPtr, 100, 0, 0, IID_GHOST_RACER, startX, startY, dir, size, depth)
@@ -113,6 +152,7 @@ GhostRacer::GhostRacer(StudentWorld* sp, Actor* playerPtr, double startX, double
 
 void GhostRacer::doSomething()
 {
+    bool hitSide = false;
     if (!isAlive())
         return;
     if (getX() <= LEFT_EDGE)
@@ -122,6 +162,7 @@ void GhostRacer::doSomething()
             changeHealth(-10);
             setDirection(82);
             getWorld()->playSound(SOUND_VEHICLE_CRASH);
+            hitSide = true;
         }
     }
     else if (getX() >= RIGHT_EDGE)
@@ -131,10 +172,11 @@ void GhostRacer::doSomething()
             changeHealth(-10);
             setDirection(98);
             getWorld()->playSound(SOUND_VEHICLE_CRASH);
+            hitSide = true;
         }
     }
     int ch;
-    if (getWorld()->getKey(ch))
+    if (getWorld()->getKey(ch) && !hitSide)
     {
         switch(ch)
         {
@@ -175,6 +217,7 @@ void GhostRacer::doSomething()
     double cur_x = getX();
     double cur_y = getY();
     moveTo(cur_x + delta_x, cur_y);
+    hitSide = false;
 }
 
 void Projectile::doSomething()
