@@ -17,13 +17,18 @@ public:
     virtual bool isMortal() = 0;
     void changeHealth(int change) {m_health += change;};
     bool isAlive() {return m_isAlive;};
+    bool isOverlap(Actor* object, Actor* player);
+    void commonMove();
+    virtual bool isPedestrian() {return false;};
     void setAlive(bool alive) {m_isAlive = alive;};
     int getHealth() {return m_health;};
     virtual bool isCollisionAvoidanceActor() {return false;};
     int getHorizSpeed() {return m_horizontalSpeed;};
     int getVertSpeed() {return m_verticalSpeed;};
-    void changeHorizSpeed(int horizSpeed) {m_horizontalSpeed += horizSpeed;};
-    void changeVertSpeed(int vertSpeed) {m_verticalSpeed += vertSpeed;};
+    // void changeHorizSpeed(int horizSpeed) {m_horizontalSpeed += horizSpeed;};
+    // void changeVertSpeed(int vertSpeed) {m_verticalSpeed += vertSpeed;};
+    void setHorizSpeed(int horizSpeed) {m_horizontalSpeed = horizSpeed;};
+    void setVertSpeed(int vertSpeed) {m_verticalSpeed = vertSpeed;};
     StudentWorld* getWorld() {return worldPtr;};
     Actor* getPlayer() {return GhostRacerPtr;};
 private:
@@ -49,7 +54,7 @@ private:
 class BorderLine: public Actor
 {
 public:
-    BorderLine(StudentWorld* sp, Actor* playerPtr, bool isWhite, int imageID, double startX, double startY, int dir = 0, double size = 2.0, unsigned int depth = 1);
+    BorderLine(StudentWorld* sp, Actor* playerPtr, bool isWhite, int imageID, double startX, double startY);
     virtual void doSomething();
     virtual bool isMortal() {return false;};
     bool isWhite() {return m_white;};
@@ -68,5 +73,32 @@ private:
     int m_numSprays;
 };
 
+class Pedestrian: public Actor
+{
+public:
+    Pedestrian(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY, double size);
+    bool isMortal() {return true;};
+    virtual bool isPedestrian() {return true;};
+    virtual bool isCollisionAvoidanceActor() {return true;};
+    int getMovePlan() {return m_movementPlanDist;};
+    void setMovePlan(int setMove) {m_movementPlanDist = setMove;};
+
+private:
+    int m_movementPlanDist;
+};
+
+class HumanPedestrian: public Pedestrian
+{
+public:
+    HumanPedestrian(StudentWorld* sp, Actor* playerPtr, double startX, double startY);
+    virtual void doSomething();
+};
+
+class ZombiePedestrian: public Pedestrian
+{
+public:
+    ZombiePedestrian(StudentWorld* sp, Actor* playerPtr, double startX, double startY);
+    virtual void doSomething();
+};
 
 #endif // ACTOR_H_

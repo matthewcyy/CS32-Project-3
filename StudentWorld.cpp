@@ -17,6 +17,7 @@ StudentWorld::StudentWorld(string assetPath)
 {
     playerPtr = nullptr;
     lastAddedWhiteY = 220;
+    hitHuman = false;
 }
 
 int StudentWorld::init()
@@ -43,11 +44,9 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-    // This code is here merely to allow the game to build, run, and terminate after you hit enter.
-    // Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
     list<Actor*> :: iterator actorIt;
     actorIt = livingActors.begin();
-    while (actorIt != livingActors.end())
+    while (actorIt != livingActors.end()) // Having all actors do something or ending the game early if something happend
     {
         if ((*actorIt)->isAlive())
         {
@@ -58,14 +57,20 @@ int StudentWorld::move()
                 decLives();
                 return GWSTATUS_PLAYER_DIED;
             }
+            if (hitHuman)
+            {
+                playerPtr->setAlive(false);
+                decLives();
+                setHitHuman(false);
+                return GWSTATUS_PLAYER_DIED;
+            }
             actorIt++;
         }
         else
             actorIt++;
-
     }
     actorIt = livingActors.begin();
-    while (actorIt != livingActors.end())
+    while (actorIt != livingActors.end()) // Removing all dead actors
     {
         if (!((*actorIt)->isAlive()))
         {
@@ -75,6 +80,10 @@ int StudentWorld::move()
         else
             actorIt++;
     }
+    
+    // ADDING NEW ACTORS BELOW:
+    int L = getLevel();
+    // Adding borderlines when necessary
     double lastAdded_y = lastAddedWhiteY;
     double new_border_y = VIEW_HEIGHT - SPRITE_HEIGHT;
     double delta_y = new_border_y - lastAdded_y;
@@ -94,6 +103,17 @@ int StudentWorld::move()
         lastAddedWhiteY = 244 + 4;
     }
     lastAddedWhiteY -= (4 + getPlayerPtr()->getVertSpeed());
+    
+    // Adding human Peds
+    int ChanceHumanPed = max(200 - L * 10, 30);
+    int chanceNum = randInt(0, ChanceHumanPed);
+    if (chanceNum == 0)
+    {
+        int humanX = randInt(0, VIEW_WIDTH);
+        int humanY = VIEW_HEIGHT;
+        Actor *newHumanPed = new HumanPedestrian(this, getPlayerPtr(), humanX, humanY);
+        livingActors.push_back(newHumanPed);
+    }
     return GWSTATUS_CONTINUE_GAME;
 }
 

@@ -18,12 +18,14 @@ public:
     virtual void cleanUp();
     Actor* getPlayerPtr() {return playerPtr;};
     void setPlayerPtr(Actor* racerPtr) {playerPtr = racerPtr;};
+    void setHitHuman(bool hit) {hitHuman = hit;};
     ~StudentWorld();
 
 private:
     std::list<Actor*> livingActors;
     Actor* playerPtr;
     int lastAddedWhiteY;
+    bool hitHuman;
 };
 
 #endif // STUDENTWORLD_H_
