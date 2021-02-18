@@ -20,14 +20,6 @@ BorderLine::BorderLine(StudentWorld* sp, Actor* playerPtr, bool isWhite, int ima
     m_white = isWhite;
 }
 
-bool BorderLine::canMoveDownScreenAndWhite()
-{
-    if (m_white)
-        return true;
-    else
-        return false;
-}
-
 Projectile::Projectile(StudentWorld* sp, Actor* playerPtr, double startX, double startY, int dir, double size, unsigned int depth) : Actor(sp, playerPtr, 0, 0, 0, IID_HOLY_WATER_PROJECTILE, startX, startY, dir, size, depth)
 {
     
@@ -35,7 +27,7 @@ Projectile::Projectile(StudentWorld* sp, Actor* playerPtr, double startX, double
 
 void BorderLine::doSomething()
 {
-    double vert_speed = getVertSpeed() - getPlayer()->getForwardSpeed();
+    double vert_speed = getVertSpeed() - getPlayer()->getVertSpeed();
     double horiz_speed = getHorizSpeed();
     double new_y = (this->getY() + vert_speed);
     double new_x = (this->getX() + horiz_speed);
@@ -50,7 +42,6 @@ void BorderLine::doSomething()
 GhostRacer::GhostRacer(StudentWorld* sp, Actor* playerPtr, double startX, double startY, int dir, double size, unsigned int depth) : Actor(sp, playerPtr, 100, 0, 0, IID_GHOST_RACER, startX, startY, dir, size, depth)
 {
     m_numSprays = 10;
-    m_forwardSpeed = 0;
 }
 
 void GhostRacer::doSomething()
@@ -103,12 +94,12 @@ void GhostRacer::doSomething()
                     setDirection(getDirection() - 8);
                 break;
             case KEY_PRESS_UP:
-                if (m_forwardSpeed < 5)
-                    m_forwardSpeed++;
+                if (getVertSpeed() < 5)
+                    changeVertSpeed(1);
                 break;
             case KEY_PRESS_DOWN:
-                if (m_forwardSpeed > -1)
-                    m_forwardSpeed--;
+                if (getVertSpeed() > -1)
+                    changeVertSpeed(-1);
         }
     }
     double max_shift_per_tick = 4.0;

@@ -93,7 +93,7 @@ int StudentWorld::move()
         livingActors.push_back(newRightWhite);
         lastAddedWhiteY = 244 + 4;
     }
-    lastAddedWhiteY -= (4 + getPlayerPtr()->getForwardSpeed());
+    lastAddedWhiteY -= (4 + getPlayerPtr()->getVertSpeed());
     return GWSTATUS_CONTINUE_GAME;
 }
 

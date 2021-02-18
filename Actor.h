@@ -20,10 +20,10 @@ public:
     void setAlive(bool alive) {m_isAlive = alive;};
     int getHealth() {return m_health;};
     virtual bool isCollisionAvoidanceActor() {return false;};
-    virtual bool canMoveDownScreenAndWhite() {return false;}; // Is false for all non-borderlines
-    virtual int getForwardSpeed() {return 0;};
     int getHorizSpeed() {return m_horizontalSpeed;};
     int getVertSpeed() {return m_verticalSpeed;};
+    void changeHorizSpeed(int horizSpeed) {m_horizontalSpeed += horizSpeed;};
+    void changeVertSpeed(int vertSpeed) {m_verticalSpeed += vertSpeed;};
     StudentWorld* getWorld() {return worldPtr;};
     Actor* getPlayer() {return GhostRacerPtr;};
 private:
@@ -53,7 +53,6 @@ public:
     virtual void doSomething();
     virtual bool isMortal() {return false;};
     bool isWhite() {return m_white;};
-    virtual bool canMoveDownScreenAndWhite(); // Is true for all borderlines
     
 private:
     bool m_white;
@@ -65,10 +64,8 @@ public:
     GhostRacer(StudentWorld* sp, Actor* playerPtr, double startX = 128, double startY = 32, int dir = 90, double size = 4.0, unsigned int depth = 0);
     virtual void doSomething();
     virtual bool isMortal() {return true;};
-    virtual int getForwardSpeed() {return m_forwardSpeed;};
 private:
     int m_numSprays;
-    double m_forwardSpeed;
 };
 
 
