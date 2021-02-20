@@ -12,7 +12,7 @@ const int RIGHT_EDGE = ROAD_CENTER + ROAD_WIDTH/2;
 class Actor: public GraphObject
 {
 public:
-    Actor(StudentWorld* sp, Actor* playerPtr, int health, int horizSpeed, int vertSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth);
+    Actor(StudentWorld* sp, Actor* playerPtr, int health, double horizSpeed, double vertSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth);
     virtual void doSomething() = 0;
     virtual bool isMortal() = 0;
     void changeHealth(int change) {m_health += change;};
@@ -23,21 +23,21 @@ public:
     virtual bool isCollisionAvoidanceActor() {return false;};
     void setAlive(bool alive) {m_isAlive = alive;};
     int getHealth() {return m_health;};
-    int getHorizSpeed() {return m_horizontalSpeed;};
-    int getVertSpeed() {return m_verticalSpeed;};
+    double getHorizSpeed() {return m_horizontalSpeed;};
+    double getVertSpeed() {return m_verticalSpeed;};
     virtual int getSprays() {return 0;};
-    // void changeHorizSpeed(int horizSpeed) {m_horizontalSpeed += horizSpeed;};
-    // void changeVertSpeed(int vertSpeed) {m_verticalSpeed += vertSpeed;};
-    void setHorizSpeed(int horizSpeed) {m_horizontalSpeed = horizSpeed;};
-    void setVertSpeed(int vertSpeed) {m_verticalSpeed = vertSpeed;};
+    // void changeHorizSpeed(double horizSpeed) {m_horizontalSpeed += horizSpeed;};
+    // void changeVertSpeed(double vertSpeed) {m_verticalSpeed += vertSpeed;};
+    void setHorizSpeed(double horizSpeed) {m_horizontalSpeed = horizSpeed;};
+    void setVertSpeed(double vertSpeed) {m_verticalSpeed = vertSpeed;};
     StudentWorld* getWorld() {return worldPtr;};
     Actor* getPlayer() {return GhostRacerPtr;};
 private:
     StudentWorld* worldPtr;
     Actor* GhostRacerPtr;
     bool m_isAlive;
-    int m_horizontalSpeed;
-    int m_verticalSpeed;
+    double m_horizontalSpeed;
+    double m_verticalSpeed;
     int m_health;
 };
 
@@ -78,7 +78,16 @@ private:
 class ZombieCab: public Actor
 {
 public:
-    ZombieCab(StudentWorld* sp, Actor* playerPtr, double startX, double startY);
+    ZombieCab(StudentWorld* sp, Actor* playerPtr, double vertSpeed, double startX, double startY);
+    virtual void doSomething();
+    virtual bool isCollisionAvoidanceActor() {return true;};
+    virtual bool isMortal() {return true;};
+    void setDamagedPlayer(bool hasDamaged) {m_hasDamagedPlayer = hasDamaged;};
+    int getPlanLength() {return m_planLength;};
+    void setPlanLength(int plan) {m_planLength = plan;};
+private:
+    bool m_hasDamagedPlayer;
+    int m_planLength;
 };
 
 class Pedestrian: public Actor

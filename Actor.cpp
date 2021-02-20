@@ -5,7 +5,7 @@
 #include <math.h>
 
 // Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
-Actor::Actor(StudentWorld* sp, Actor* playerPtr, int health, int vertSpeed, int horizSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth) : GraphObject(imageID, startX, startY, dir, size, depth)
+Actor::Actor(StudentWorld* sp, Actor* playerPtr, int health, double vertSpeed, double horizSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth) : GraphObject(imageID, startX, startY, dir, size, depth)
 {
     worldPtr = sp;
     GhostRacerPtr = playerPtr;
@@ -57,6 +57,63 @@ void BorderLine::doSomething()
 Projectile::Projectile(StudentWorld* sp, Actor* playerPtr, double startX, double startY, int dir, double size, unsigned int depth) : Actor(sp, playerPtr, 0, 0, 0, IID_HOLY_WATER_PROJECTILE, startX, startY, dir, size, depth)
 {
     
+}
+
+ZombieCab::ZombieCab(StudentWorld* sp, Actor* playerPtr, double vertSpeed, double startX, double startY) : Actor(sp, playerPtr, 3, vertSpeed, 0, IID_ZOMBIE_CAB, startX, startY, 90, 4.0, 0)
+{
+    m_hasDamagedPlayer = false;
+    m_planLength = 0;
+}
+
+void ZombieCab::doSomething()
+{
+    if (!isAlive())
+        return;
+    double cabX = getX();
+    double cabY = getY();
+    double playerX = getPlayer()->getX();
+    if (isOverlap(this, getPlayer()))
+    {
+        if (!m_hasDamagedPlayer)
+        {
+            getWorld()->playSound(SOUND_VEHICLE_CRASH);
+            getPlayer()->changeHealth(-20);
+            if (cabX < playerX)
+            {
+                setHorizSpeed(-5);
+                setDirection(60 - randInt(0, 19));
+            }
+            else if (cabX > playerX)
+            {
+                setHorizSpeed(5);
+                setDirection(120 + randInt(0, 19));
+            }
+            setDamagedPlayer(true);
+        }
+    }
+    commonMove();
+    Actor* actorInLane = getWorld()->actorInSameLane(this);
+    double actorInLaneY = actorInLane->getY();
+    if (getVertSpeed() > getPlayer()->getVertSpeed() && actorInLane != nullptr && actorInLaneY > cabY)
+        if (actorInLaneY - cabY < 96)
+        {
+            setVertSpeed(getVertSpeed() - 0.5);
+            return;
+        }
+    if (getVertSpeed() <= getPlayer()->getVertSpeed() && actorInLane != nullptr && actorInLaneY < cabY)
+        if (cabY - actorInLaneY < 96)
+        {
+            setVertSpeed(getVertSpeed() + 0.5);
+            return;
+        }
+    setPlanLength(getPlanLength() - 1);
+    if (getPlanLength() > 0)
+        return;
+    else
+    {
+        setPlanLength(randInt(4, 32));
+        setVertSpeed(getVertSpeed() + randInt(-2, 2));
+    }
 }
 
 Pedestrian::Pedestrian(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY, double size) : Actor(sp, playerPtr, 2, -4, 0, imageID, startX, startY, 0, size, 0)
@@ -112,6 +169,7 @@ void ZombiePedestrian::doSomething()
     {
         getPlayer()->changeHealth(-5);
         changeHealth(-2);
+        getWorld()->increaseScore(150);
         if (getHealth() <= 0)
             setAlive(false);
     }

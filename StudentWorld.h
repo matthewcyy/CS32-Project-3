@@ -19,6 +19,7 @@ public:
     Actor* getPlayerPtr() {return playerPtr;};
     void setPlayerPtr(Actor* racerPtr) {playerPtr = racerPtr;};
     void setHitHuman(bool hit) {hitHuman = hit;};
+    Actor* actorInSameLane(Actor* cab); // Determine if there's an actor in the same lane as a cab and return the actor
     ~StudentWorld();
 
 private:

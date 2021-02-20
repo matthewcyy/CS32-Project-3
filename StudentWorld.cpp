@@ -23,6 +23,32 @@ StudentWorld::StudentWorld(string assetPath)
     hitHuman = false;
 }
 
+Actor* StudentWorld::actorInSameLane(Actor *cab)
+{
+    list<Actor*> :: iterator actorIt;
+    actorIt = livingActors.begin();
+    double cabX = cab->getX();
+    double cabY = cab->getY();
+    // White lines at ROAD_CENTER - ROAD_WIDTH/2 + ROAD_WIDTH/3 and ROAD_CENTER + ROAD_WIDTH/2 - ROAD_WIDTH/3
+    // Center of white line lanes = ROAD_CENTER, ROAD_CENTER - ROAD_WIDTH/3
+    // Distance from center of lane to left border is ROAD_CENTER - (ROAD_CENTER - ROAD_WIDTH/2 + ROAD_WIDTH/3) = ROAD_WIDTH/2 - ROAD_WIDTH/3 = ROAD_WIDTH/6
+    // Since the cab will start in the center, and actors are in a lane if its center is on or to the left boundary of lane K, and to the left of but not on the right boundary of lane K...
+    Actor* closestActorInLane = nullptr;
+    while (actorIt != livingActors.end())
+    {
+        if ((*actorIt)->isCollisionAvoidanceActor()) // If find collision avoidance actor
+        {
+            double actorX = (*actorIt)->getX();
+            double actorY = (*actorIt)->getY();
+            if ( ( cabX - actorX > 0 && cabX - actorX <= ROAD_WIDTH/6) || actorX - cabX < ROAD_WIDTH/6) // Distance from center of lane (where cab is) to its borders is ROAD_WIDTH/6. However, it's considered to be in the lane if it's on the left boundary but not the right boundary
+                if (closestActorInLane != nullptr && abs(closestActorInLane->getY() - cabY) > abs(actorY - cabY))
+                    closestActorInLane = (*actorIt);
+        }
+        actorIt++;
+    }
+    return closestActorInLane;
+}
+
 int StudentWorld::init()
 {
     lastAddedWhiteY = 220; // Have this here b/c otherwise if you lose a life and then it restarts, the first added white border line will not be spaced right
