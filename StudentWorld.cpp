@@ -1,6 +1,9 @@
 #include "StudentWorld.h"
 #include "GameConstants.h"
 #include "Actor.h"
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <list>
 #include <string>
 using namespace std;
@@ -23,7 +26,7 @@ StudentWorld::StudentWorld(string assetPath)
 int StudentWorld::init()
 {
     lastAddedWhiteY = 220; // Have this here b/c otherwise if you lose a life and then it restarts, the first added white border line will not be spaced right
-    Actor *playerPtr = new GhostRacer(this, nullptr, 128, 32, 90, 4.0, 0);
+    Actor *playerPtr = new GhostRacer(this);
     setPlayerPtr(playerPtr);
     livingActors.push_back(playerPtr);
     for (int i = 0; i < VIEW_HEIGHT/(SPRITE_HEIGHT); i++)
@@ -83,6 +86,7 @@ int StudentWorld::move()
     }
     
     // ADDING NEW ACTORS BELOW:
+    
     int L = getLevel();
     // Adding borderlines when necessary
     double lastAdded_y = lastAddedWhiteY;
@@ -124,6 +128,12 @@ int StudentWorld::move()
         Actor *newHumanPed = new HumanPedestrian(this, getPlayerPtr(), humanX, pedY);
         livingActors.push_back(newHumanPed);
     }
+    
+    // UPDATING THE GAME STATUS LINE
+    ostringstream statusBar;
+    statusBar << "Score: " << getScore() << "  " << "Lvl: " << getLevel() << "  " << "Souls2Save: " << "Lives: " << getLives() << "  " << "Health: " << getPlayerPtr()->getHealth() << "  " << "Sprays: " << getPlayerPtr()->getSprays() << "  " << "Bonus: " << 5000;
+    string status = statusBar.str();
+    setGameStatText(status);
     return GWSTATUS_CONTINUE_GAME;
 }
 

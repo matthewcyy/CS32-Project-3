@@ -16,15 +16,16 @@ public:
     virtual void doSomething() = 0;
     virtual bool isMortal() = 0;
     void changeHealth(int change) {m_health += change;};
+    void commonMove();
     bool isAlive() {return m_isAlive;};
     bool isOverlap(Actor* object, Actor* player);
-    void commonMove();
     virtual bool isPedestrian() {return false;};
+    virtual bool isCollisionAvoidanceActor() {return false;};
     void setAlive(bool alive) {m_isAlive = alive;};
     int getHealth() {return m_health;};
-    virtual bool isCollisionAvoidanceActor() {return false;};
     int getHorizSpeed() {return m_horizontalSpeed;};
     int getVertSpeed() {return m_verticalSpeed;};
+    virtual int getSprays() {return 0;};
     // void changeHorizSpeed(int horizSpeed) {m_horizontalSpeed += horizSpeed;};
     // void changeVertSpeed(int vertSpeed) {m_verticalSpeed += vertSpeed;};
     void setHorizSpeed(int horizSpeed) {m_horizontalSpeed = horizSpeed;};
@@ -66,11 +67,18 @@ private:
 class GhostRacer: public Actor
 {
 public:
-    GhostRacer(StudentWorld* sp, Actor* playerPtr, double startX = 128, double startY = 32, int dir = 90, double size = 4.0, unsigned int depth = 0);
+    GhostRacer(StudentWorld* sp);
     virtual void doSomething();
     virtual bool isMortal() {return true;};
+    virtual int getSprays() {return m_numSprays;};
 private:
     int m_numSprays;
+};
+
+class ZombieCab: public Actor
+{
+public:
+    ZombieCab(StudentWorld* sp, Actor* playerPtr, double startX, double startY);
 };
 
 class Pedestrian: public Actor

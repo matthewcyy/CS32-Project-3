@@ -123,9 +123,9 @@ void ZombiePedestrian::doSomething()
     {
         setDirection(270);
         if (zombieX < playerX)
-            setHorizSpeed(-1);
-        else if (zombieX > playerX)
             setHorizSpeed(1);
+        else if (zombieX > playerX)
+            setHorizSpeed(-1);
         else
             setHorizSpeed(0);
         m_ticks--;
@@ -145,7 +145,7 @@ void ZombiePedestrian::doSomething()
         commonMovePlan();
 }
 
-GhostRacer::GhostRacer(StudentWorld* sp, Actor* playerPtr, double startX, double startY, int dir, double size, unsigned int depth) : Actor(sp, playerPtr, 100, 0, 0, IID_GHOST_RACER, startX, startY, dir, size, depth)
+GhostRacer::GhostRacer(StudentWorld* sp) : Actor(sp, nullptr, 100, 0, 0, IID_GHOST_RACER, 128, 32, 90, 4.0, 0)
 {
     m_numSprays = 10;
 }
