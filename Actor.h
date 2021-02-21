@@ -2,8 +2,9 @@
 #define ACTOR_H_
 
 #include "GraphObject.h"
-#include "StudentWorld.h"
 #include "GameConstants.h"
+
+class StudentWorld;
 
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 const int LEFT_EDGE = ROAD_CENTER - ROAD_WIDTH/2;
@@ -55,13 +56,11 @@ private:
 class BorderLine: public Actor
 {
 public:
-    BorderLine(StudentWorld* sp, Actor* playerPtr, bool isWhite, int imageID, double startX, double startY);
+    BorderLine(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY);
     virtual void doSomething();
     virtual bool isMortal() {return false;};
-    bool isWhite() {return m_white;};
     
 private:
-    bool m_white;
 };
 
 class GhostRacer: public Actor

@@ -37,16 +37,15 @@ void Actor::commonMove() // Setting up a general movement function since all act
     double new_y = getY() + vert_speed;
     double new_x = getX() + horiz_speed;
     this->moveTo(new_x, new_y);
-    if (new_x <= 0 || new_y <= 0 || new_x > VIEW_WIDTH || new_y > VIEW_HEIGHT)
+    if (new_x < 0 || new_y < 0 || new_x > VIEW_WIDTH || new_y > VIEW_HEIGHT)
     {
         setAlive(false);
         return;
     }
 }
 
-BorderLine::BorderLine(StudentWorld* sp, Actor* playerPtr, bool isWhite, int imageID, double startX, double startY) : Actor(sp, playerPtr, 0, -4, 0, imageID, startX, startY, 0, 2.0, 1)
+BorderLine::BorderLine(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY) : Actor(sp, playerPtr, 0, -4, 0, imageID, startX, startY, 0, 2.0, 2)
 {
-    m_white = isWhite;
 }
 
 void BorderLine::doSomething()
@@ -212,9 +211,9 @@ GhostRacer::GhostRacer(StudentWorld* sp) : Actor(sp, nullptr, 100, 0, 0, IID_GHO
 
 void GhostRacer::doSomething()
 {
-    bool hitSide = false;
     if (!isAlive())
         return;
+    bool hitSide = false;
     if (getX() <= LEFT_EDGE)
     {
         if (getDirection() > 90)

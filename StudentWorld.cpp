@@ -36,11 +36,14 @@ Actor* StudentWorld::actorInSameLane(Actor *cab)
     Actor* closestActorInLane = nullptr;
     while (actorIt != livingActors.end())
     {
-        if ((*actorIt)->isCollisionAvoidanceActor()) // If find collision avoidance actor
+        if ((*actorIt)->isCollisionAvoidanceActor() && cab != *actorIt) // If find collision avoidance actor
         {
             double actorX = (*actorIt)->getX();
             double actorY = (*actorIt)->getY();
-            if ( (cabX - actorX >= 0 && cabX - actorX <= ROAD_WIDTH/6) || (cabX - actorX < 0 && actorX - cabX < ROAD_WIDTH/6)) // Distance from center of lane (where cab is) to its borders is ROAD_WIDTH/6. However, it's considered to be in the lane if it's on the left boundary but not the right boundary
+            bool isInLane = (cabX - actorX >= 0 && cabX - actorX <= ROAD_WIDTH/6) || (cabX - actorX < 0 && actorX - cabX < ROAD_WIDTH/6); // Distance from center of lane (where cab is) to its borders is ROAD_WIDTH/6. However, it's considered to be in the lane if it's on the left boundary but not the right boundary
+            if (isInLane)
+                if (closestActorInLane == nullptr)
+                    closestActorInLane = (*actorIt);
                 if (closestActorInLane != nullptr && abs(closestActorInLane->getY() - cabY) > abs(actorY - cabY))
                     closestActorInLane = (*actorIt);
         }
@@ -57,15 +60,15 @@ int StudentWorld::init()
     livingActors.push_back(playerPtr);
     for (int i = 0; i < VIEW_HEIGHT/(SPRITE_HEIGHT); i++)
     {
-        Actor *leftBorder  = new BorderLine(this, playerPtr, false, IID_YELLOW_BORDER_LINE, LEFT_EDGE, i*SPRITE_HEIGHT);
-        Actor *rightBorder  = new BorderLine(this, playerPtr, false, IID_YELLOW_BORDER_LINE, RIGHT_EDGE, i*SPRITE_HEIGHT);
+        Actor *leftBorder  = new BorderLine(this, playerPtr, IID_YELLOW_BORDER_LINE, LEFT_EDGE, i*SPRITE_HEIGHT);
+        Actor *rightBorder  = new BorderLine(this, playerPtr, IID_YELLOW_BORDER_LINE, RIGHT_EDGE, i*SPRITE_HEIGHT);
         livingActors.push_back(leftBorder);
         livingActors.push_back(rightBorder); // Creating and adding all border walls necessary on start
     }
     for (int j = 0; j < VIEW_HEIGHT/(4*SPRITE_HEIGHT); j++)
     {
-        Actor *leftWhiteBorder = new BorderLine(this, playerPtr, true, IID_WHITE_BORDER_LINE, LEFT_EDGE + ROAD_WIDTH/3, j*4*SPRITE_HEIGHT);
-        Actor *rightWhiteBorder = new BorderLine(this, playerPtr, true, IID_WHITE_BORDER_LINE, RIGHT_EDGE - ROAD_WIDTH/3, j*4*SPRITE_HEIGHT);
+        Actor *leftWhiteBorder = new BorderLine(this, playerPtr, IID_WHITE_BORDER_LINE, LEFT_EDGE + ROAD_WIDTH/3, j*4*SPRITE_HEIGHT);
+        Actor *rightWhiteBorder = new BorderLine(this, playerPtr, IID_WHITE_BORDER_LINE, RIGHT_EDGE - ROAD_WIDTH/3, j*4*SPRITE_HEIGHT);
         livingActors.push_back(leftWhiteBorder);
         livingActors.push_back(rightWhiteBorder); // Creating and adding all border walls necessary on start
     }
@@ -120,15 +123,15 @@ int StudentWorld::move()
     double delta_y = new_border_y - lastAdded_y;
     if (delta_y >= SPRITE_HEIGHT)
     {
-        Actor *newLeftYellow = new BorderLine(this, getPlayerPtr(), false, IID_YELLOW_BORDER_LINE, LEFT_EDGE, new_border_y);
-        Actor *newRightYellow = new BorderLine(this, getPlayerPtr(), false, IID_YELLOW_BORDER_LINE, RIGHT_EDGE, new_border_y);
+        Actor *newLeftYellow = new BorderLine(this, getPlayerPtr(), IID_YELLOW_BORDER_LINE, LEFT_EDGE, new_border_y);
+        Actor *newRightYellow = new BorderLine(this, getPlayerPtr(), IID_YELLOW_BORDER_LINE, RIGHT_EDGE, new_border_y);
         livingActors.push_back(newLeftYellow);
         livingActors.push_back(newRightYellow);
     }
     if (delta_y >= 4*SPRITE_HEIGHT)
     {
-        Actor *newLeftWhite = new BorderLine(this, getPlayerPtr(),true, IID_WHITE_BORDER_LINE, LEFT_EDGE + ROAD_WIDTH/3, new_border_y);
-        Actor *newRightWhite = new BorderLine(this, getPlayerPtr(), true, IID_WHITE_BORDER_LINE, RIGHT_EDGE - ROAD_WIDTH/3, new_border_y);
+        Actor *newLeftWhite = new BorderLine(this, getPlayerPtr(), IID_WHITE_BORDER_LINE, LEFT_EDGE + ROAD_WIDTH/3, new_border_y);
+        Actor *newRightWhite = new BorderLine(this, getPlayerPtr(), IID_WHITE_BORDER_LINE, RIGHT_EDGE - ROAD_WIDTH/3, new_border_y);
         livingActors.push_back(newLeftWhite);
         livingActors.push_back(newRightWhite);
         lastAddedWhiteY = 244 + 4;
