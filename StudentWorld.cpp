@@ -30,7 +30,7 @@ Actor* StudentWorld::actorInSameLane(Actor *cab)
     double cabX = cab->getX();
     double cabY = cab->getY();
     // White lines at ROAD_CENTER - ROAD_WIDTH/2 + ROAD_WIDTH/3 and ROAD_CENTER + ROAD_WIDTH/2 - ROAD_WIDTH/3
-    // Center of white line lanes = ROAD_CENTER, ROAD_CENTER - ROAD_WIDTH/3
+    // Center of white line lanes = ROAD_CENTER, ROAD_CENTER - ROAD_WIDTH/3, ROAD_CENTER + ROAD_WIDTH/3
     // Distance from center of lane to left border is ROAD_CENTER - (ROAD_CENTER - ROAD_WIDTH/2 + ROAD_WIDTH/3) = ROAD_WIDTH/2 - ROAD_WIDTH/3 = ROAD_WIDTH/6
     // Since the cab will start in the center, and actors are in a lane if its center is on or to the left boundary of lane K, and to the left of but not on the right boundary of lane K...
     Actor* closestActorInLane = nullptr;
@@ -40,7 +40,7 @@ Actor* StudentWorld::actorInSameLane(Actor *cab)
         {
             double actorX = (*actorIt)->getX();
             double actorY = (*actorIt)->getY();
-            if ( ( cabX - actorX > 0 && cabX - actorX <= ROAD_WIDTH/6) || actorX - cabX < ROAD_WIDTH/6) // Distance from center of lane (where cab is) to its borders is ROAD_WIDTH/6. However, it's considered to be in the lane if it's on the left boundary but not the right boundary
+            if ( (cabX - actorX >= 0 && cabX - actorX <= ROAD_WIDTH/6) || (cabX - actorX < 0 && actorX - cabX < ROAD_WIDTH/6)) // Distance from center of lane (where cab is) to its borders is ROAD_WIDTH/6. However, it's considered to be in the lane if it's on the left boundary but not the right boundary
                 if (closestActorInLane != nullptr && abs(closestActorInLane->getY() - cabY) > abs(actorY - cabY))
                     closestActorInLane = (*actorIt);
         }
@@ -135,11 +135,93 @@ int StudentWorld::move()
     }
     lastAddedWhiteY -= (4 + getPlayerPtr()->getVertSpeed());
     
+    // Adding zombie cabs
+    int ChanceVehicle = max(100 - L*10, 20);
+    if (randInt(0, ChanceVehicle - 1) == 0)
+    {
+        int cur_lane = randInt(0, 2); // 0 = left lane, 1 = middle lane, 2 = right lane
+        int laneForCab = -1;
+        list<Actor*> :: iterator actorIt;
+        int countChecks = 0; // Determining how many times we check a lane
+        double startX = 0.0;
+        double startY = 0.0;
+        double startVertSpeed = 0.0;
+        while (countChecks < 3)
+        {
+            int centerX = ROAD_CENTER + (cur_lane - 1)*(ROAD_WIDTH/3);
+            actorIt = livingActors.begin();
+            Actor *closestActorToBottom = nullptr;
+            int minY = VIEW_HEIGHT;
+            int actorX;
+            int actorY;
+            bool isInLane;
+            while (actorIt != livingActors.end()) // Determining the closest collision avoidance-worthy actor to the bottom of the screen
+            {
+                actorX = (*actorIt)->getX();
+                actorY = (*actorIt)->getY();
+                isInLane = ((centerX - actorX >= 0 && centerX - actorX <= ROAD_WIDTH/6) || (centerX - actorX < 0 && actorX - centerX < ROAD_WIDTH/6)); // Determining if actor is in the lane based on the actor's x coordinate
+                if ((*actorIt)->isCollisionAvoidanceActor() && isInLane)
+                {
+                    if (actorY < minY)
+                    {
+                        closestActorToBottom = *actorIt;
+                        minY = actorY;
+                    }
+                }
+                actorIt++;
+            }
+            if (closestActorToBottom == nullptr || minY > VIEW_HEIGHT/3)
+            {
+                laneForCab = cur_lane;
+                startY = SPRITE_HEIGHT / 2;
+                startVertSpeed = getPlayerPtr()->getVertSpeed() + randInt(2,4);
+                break;
+            }
+            
+            Actor *closestActorToTop = nullptr;
+            int maxY = 0;
+            actorIt = livingActors.begin();
+            while (actorIt != livingActors.end()) // Determining the closest collision avoidance-worthy actor to the top of the screen
+            {
+                actorX = (*actorIt)->getX();
+                actorY = (*actorIt)->getY();
+                isInLane = ((centerX - actorX >= 0 && centerX - actorX <= ROAD_WIDTH/6) || (centerX - actorX < 0 && actorX - centerX < ROAD_WIDTH/6)); // Determining if actor is in the lane based on the actor's x coordinate
+                if ((*actorIt)->isCollisionAvoidanceActor() && isInLane)
+                {
+                    if (actorY > maxY)
+                    {
+                        closestActorToTop = *actorIt;
+                        maxY = actorY;
+                    }
+                }
+                actorIt++;
+            }
+            if (closestActorToTop == nullptr || maxY < VIEW_HEIGHT*2/3)
+            {
+                laneForCab = cur_lane;
+                startY = VIEW_HEIGHT - SPRITE_HEIGHT/2;
+                startVertSpeed = getPlayerPtr()->getVertSpeed() - randInt(2,4);
+                break;
+            }
+            if (cur_lane != 2)
+                cur_lane++;
+            else
+                cur_lane = 0;
+            countChecks++;
+        }
+        if (laneForCab != -1)
+        {
+            startX = ROAD_CENTER + (laneForCab - 1)*(ROAD_WIDTH/3);
+            Actor *newCab = new ZombieCab(this, getPlayerPtr(), startVertSpeed, startX, startY);
+            livingActors.push_back(newCab);
+        }
+    }
+    
     // Adding zombie Peds
     int pedY = VIEW_HEIGHT;
     
     int ChanceZombiePed = max(100 - L * 10, 20);
-    if (randInt(0, ChanceZombiePed) == 0)
+    if (randInt(0, ChanceZombiePed - 1) == 0)
     {
         int zombieX = randInt(0, VIEW_WIDTH);
         Actor *newZombiePed = new ZombiePedestrian(this, getPlayerPtr(), zombieX, pedY);
@@ -148,7 +230,7 @@ int StudentWorld::move()
     
     // Adding human Peds
     int ChanceHumanPed = max(200 - L * 10, 30);
-    if (randInt(0, ChanceHumanPed) == 0)
+    if (randInt(0, ChanceHumanPed - 1) == 0)
     {
         int humanX = randInt(0, VIEW_WIDTH);
         Actor *newHumanPed = new HumanPedestrian(this, getPlayerPtr(), humanX, pedY);

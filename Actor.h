@@ -71,6 +71,7 @@ public:
     virtual void doSomething();
     virtual bool isMortal() {return true;};
     virtual int getSprays() {return m_numSprays;};
+    virtual bool isCollisionAvoidanceActor() {return true;};
 private:
     int m_numSprays;
 };

@@ -78,22 +78,24 @@ void ZombieCab::doSomething()
         {
             getWorld()->playSound(SOUND_VEHICLE_CRASH);
             getPlayer()->changeHealth(-20);
-            if (cabX < playerX)
+            if (cabX <= playerX)
             {
                 setHorizSpeed(-5);
-                setDirection(60 - randInt(0, 19));
+                setDirection(120 + randInt(0, 19));
             }
             else if (cabX > playerX)
             {
                 setHorizSpeed(5);
-                setDirection(120 + randInt(0, 19));
+                setDirection(60 - randInt(0, 19));
             }
             setDamagedPlayer(true);
         }
     }
     commonMove();
     Actor* actorInLane = getWorld()->actorInSameLane(this);
-    double actorInLaneY = actorInLane->getY();
+    double actorInLaneY = -1;
+    if (actorInLane != nullptr)
+        actorInLaneY = actorInLane->getY();
     if (getVertSpeed() > getPlayer()->getVertSpeed() && actorInLane != nullptr && actorInLaneY > cabY)
         if (actorInLaneY - cabY < 96)
         {
