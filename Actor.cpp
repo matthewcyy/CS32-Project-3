@@ -11,6 +11,7 @@ Actor::Actor(StudentWorld* sp, Actor* playerPtr, int health, double vertSpeed, d
     GhostRacerPtr = playerPtr;
     m_health = health;
     m_isAlive = true;
+    m_waterHit = false;
     m_verticalSpeed = vertSpeed;
     m_horizontalSpeed = horizSpeed;
 }
@@ -53,9 +54,33 @@ void BorderLine::doSomething()
     commonMove();
 }
 
-Projectile::Projectile(StudentWorld* sp, Actor* playerPtr, double startX, double startY, int dir, double size, unsigned int depth) : Actor(sp, playerPtr, 0, 0, 0, IID_HOLY_WATER_PROJECTILE, startX, startY, dir, size, depth)
+Projectile::Projectile(StudentWorld* sp, Actor* playerPtr, double startX, double startY, int dir) : Actor(sp, playerPtr, 0, 0, 0, IID_HOLY_WATER_PROJECTILE, startX, startY, dir, 1.0, 1)
 {
-    
+    m_countMoves = 0;
+}
+
+void Projectile::doSomething()
+{
+    if (!isAlive())
+        return;
+    Actor *hitActor = getWorld()->waterOverlap(this);
+    if (hitActor != nullptr)
+    {
+        hitActor->setHitWater(true);
+        setAlive(false);
+        return;
+    }
+    moveForward(SPRITE_HEIGHT);
+    double projX = getX();
+    double projY = getY();
+    if (projX < 0 || projY < 0 || projX > VIEW_WIDTH || projY > VIEW_HEIGHT)
+    {
+        setAlive(false);
+        return;
+    }
+    m_countMoves++;
+    if (m_countMoves == 19)
+        setAlive(false);
 }
 
 ZombieCab::ZombieCab(StudentWorld* sp, Actor* playerPtr, double vertSpeed, double startX, double startY) : Actor(sp, playerPtr, 3, vertSpeed, 0, IID_ZOMBIE_CAB, startX, startY, 90, 4.0, 0)
@@ -68,6 +93,17 @@ void ZombieCab::doSomething()
 {
     if (!isAlive())
         return;
+    if (getHitWater())
+    {
+        changeHealth(-1);
+        setHitWater(false);
+    }
+    if (getHealth() <= 0)
+    {
+        setAlive(false);
+        getWorld()->increaseScore(200);
+        getWorld()->playSound(SOUND_VEHICLE_DIE);
+    }
     double cabX = getX();
     double cabY = getY();
     double playerX = getPlayer()->getX();
@@ -149,6 +185,15 @@ void HumanPedestrian::doSomething()
         getWorld()->setHitHuman(true);
         return;
     }
+    if (getHitWater())
+    {
+        setHorizSpeed(-1*getHorizSpeed());
+        if (getDirection() == 180)
+            setDirection(0);
+        else
+            setDirection(180);
+        setHitWater(false);
+    }
     commonMove();
     setMovePlan(getMovePlan() - 1);
     if (getMovePlan() > 0)
@@ -170,9 +215,17 @@ void ZombiePedestrian::doSomething()
     {
         getPlayer()->changeHealth(-5);
         changeHealth(-2);
+    }
+    if (getHitWater())
+    {
+        changeHealth(-1);
+        setHitWater(false);
+    }
+    if (getHealth() <= 0)
+    {
+        setAlive(false);
         getWorld()->increaseScore(150);
-        if (getHealth() <= 0)
-            setAlive(false);
+        getWorld()->playSound(SOUND_PED_DIE);
     }
     int playerX = getPlayer()->getX();
     int playerY = getPlayer()->getY();
@@ -239,7 +292,6 @@ void GhostRacer::doSomething()
     {
         switch(ch)
         {
-                /*
             case KEY_PRESS_SPACE:
                 if (m_numSprays >= 1)
                 {
@@ -247,12 +299,12 @@ void GhostRacer::doSomething()
                     double cur_x = getX();
                     double delta_x = cos(this->getDirection()*M_PI/180)*SPRITE_HEIGHT;
                     double delta_y = sin(this->getDirection()*M_PI/180)*SPRITE_HEIGHT;
-                    Actor* newSpray = new Projectile(this->getWorld(), this, (this->getX() + delta_x), (this->getY() + delta_y), this->getDirection());
+                    Actor* newSpray = new Projectile(this->getWorld(), this, (cur_x + delta_x), (cur_y + delta_y), this->getDirection());
+                    getWorld()->addActorToContainer(newSpray);
                     getWorld()->playSound(SOUND_PLAYER_SPRAY);
                     m_numSprays--;
                 }
                 break;
-                 */
             case KEY_PRESS_LEFT:
                 if (getDirection() < 114)
                     setDirection(getDirection() + 8);
@@ -277,10 +329,4 @@ void GhostRacer::doSomething()
     double cur_y = getY();
     moveTo(cur_x + delta_x, cur_y);
     hitSide = false;
-}
-
-void Projectile::doSomething()
-{
-    if (!(this->isAlive()))
-        return;
 }

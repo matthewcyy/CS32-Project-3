@@ -21,6 +21,7 @@ StudentWorld::StudentWorld(string assetPath)
     playerPtr = nullptr;
     lastAddedWhiteY = 220;
     hitHuman = false;
+    bonus = 5000;
 }
 
 Actor* StudentWorld::actorInSameLane(Actor *cab)
@@ -52,8 +53,26 @@ Actor* StudentWorld::actorInSameLane(Actor *cab)
     return closestActorInLane;
 }
 
+Actor* StudentWorld::waterOverlap(Actor *projectile)
+{
+    list<Actor*> :: iterator actorIt;
+    actorIt = livingActors.begin();
+    Actor* overlapActor = nullptr;
+    while (actorIt != livingActors.end())
+    {
+        if((*actorIt)->isAffectedByWater() && projectile->isOverlap(*actorIt, projectile))
+        {
+            overlapActor = *actorIt;
+            return overlapActor;
+        }
+        actorIt++;
+    }
+    return nullptr;
+}
+
 int StudentWorld::init()
 {
+    bonus = 5000;
     lastAddedWhiteY = 220; // Have this here b/c otherwise if you lose a life and then it restarts, the first added white border line will not be spaced right
     Actor *playerPtr = new GhostRacer(this);
     setPlayerPtr(playerPtr);
@@ -242,7 +261,7 @@ int StudentWorld::move()
     
     // UPDATING THE GAME STATUS LINE
     ostringstream statusBar;
-    statusBar << "Score: " << getScore() << "  " << "Lvl: " << getLevel() << "  " << "Souls2Save: " << "Lives: " << getLives() << "  " << "Health: " << getPlayerPtr()->getHealth() << "  " << "Sprays: " << getPlayerPtr()->getSprays() << "  " << "Bonus: " << 5000;
+    statusBar << "Score: " << getScore() << "  " << "Lvl: " << getLevel() << "  " << "Souls2Save: " << "Lives: " << getLives() << "  " << "Health: " << getPlayerPtr()->getHealth() << "  " << "Sprays: " << getPlayerPtr()->getSprays() << "  " << "Bonus: " << bonus--;
     string status = statusBar.str();
     setGameStatText(status);
     return GWSTATUS_CONTINUE_GAME;

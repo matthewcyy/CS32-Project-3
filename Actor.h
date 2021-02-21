@@ -15,11 +15,13 @@ class Actor: public GraphObject
 public:
     Actor(StudentWorld* sp, Actor* playerPtr, int health, double horizSpeed, double vertSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth);
     virtual void doSomething() = 0;
-    virtual bool isMortal() = 0;
+    virtual bool isAffectedByWater() = 0;
     void changeHealth(int change) {m_health += change;};
     void commonMove();
     bool isAlive() {return m_isAlive;};
     bool isOverlap(Actor* object, Actor* player);
+    bool getHitWater() {return m_waterHit;};
+    void setHitWater(bool wasHit) {m_waterHit = wasHit;};
     virtual bool isPedestrian() {return false;};
     virtual bool isCollisionAvoidanceActor() {return false;};
     void setAlive(bool alive) {m_isAlive = alive;};
@@ -37,6 +39,7 @@ private:
     StudentWorld* worldPtr;
     Actor* GhostRacerPtr;
     bool m_isAlive;
+    bool m_waterHit;
     double m_horizontalSpeed;
     double m_verticalSpeed;
     int m_health;
@@ -45,12 +48,12 @@ private:
 class Projectile: public Actor
 {
 public:
-    Projectile(StudentWorld* sp, Actor* playerPtr, double startX, double startY, int dir, double size = 1.0, unsigned int depth = 1);
+    Projectile(StudentWorld* sp, Actor* playerPtr, double startX, double startY, int dir);
     virtual void doSomething();
-    virtual bool isMortal() {return false;};
-    virtual int getSpeed() {return 0;};
+    virtual bool isAffectedByWater() {return false;};
 
 private:
+    int m_countMoves;
 };
 
 class BorderLine: public Actor
@@ -58,7 +61,7 @@ class BorderLine: public Actor
 public:
     BorderLine(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY);
     virtual void doSomething();
-    virtual bool isMortal() {return false;};
+    virtual bool isAffectedByWater() {return false;};
     
 private:
 };
@@ -68,7 +71,7 @@ class GhostRacer: public Actor
 public:
     GhostRacer(StudentWorld* sp);
     virtual void doSomething();
-    virtual bool isMortal() {return true;};
+    virtual bool isAffectedByWater() {return false;};
     virtual int getSprays() {return m_numSprays;};
     virtual bool isCollisionAvoidanceActor() {return true;};
 private:
@@ -81,7 +84,7 @@ public:
     ZombieCab(StudentWorld* sp, Actor* playerPtr, double vertSpeed, double startX, double startY);
     virtual void doSomething();
     virtual bool isCollisionAvoidanceActor() {return true;};
-    virtual bool isMortal() {return true;};
+    virtual bool isAffectedByWater() {return true;};
     void setDamagedPlayer(bool hasDamaged) {m_hasDamagedPlayer = hasDamaged;};
     int getPlanLength() {return m_planLength;};
     void setPlanLength(int plan) {m_planLength = plan;};
@@ -94,7 +97,7 @@ class Pedestrian: public Actor
 {
 public:
     Pedestrian(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY, double size);
-    bool isMortal() {return true;};
+    bool isAffectedByWater() {return true;};
     virtual bool isPedestrian() {return true;};
     virtual bool isCollisionAvoidanceActor() {return true;};
     int getMovePlan() {return m_movementPlanDist;};
@@ -109,6 +112,7 @@ class HumanPedestrian: public Pedestrian
 {
 public:
     HumanPedestrian(StudentWorld* sp, Actor* playerPtr, double startX, double startY);
+    // virtual void changeHealth(int change) {return;};
     virtual void doSomething();
 };
 
