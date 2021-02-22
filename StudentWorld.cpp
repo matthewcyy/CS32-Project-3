@@ -22,6 +22,7 @@ StudentWorld::StudentWorld(string assetPath)
     lastAddedWhiteY = 220;
     hitHuman = false;
     bonus = 5000;
+    neededSouls = getLevel()*2 + 5;
 }
 
 Actor* StudentWorld::actorInSameLane(Actor *cab)
@@ -72,6 +73,7 @@ Actor* StudentWorld::waterOverlap(Actor *projectile)
 
 int StudentWorld::init()
 {
+    neededSouls = getLevel()*2 + 5;
     bonus = 5000;
     lastAddedWhiteY = 220; // Have this here b/c otherwise if you lose a life and then it restarts, the first added white border line will not be spaced right
     Actor *playerPtr = new GhostRacer(this);
@@ -108,6 +110,11 @@ int StudentWorld::move()
                 playerPtr->setAlive(false);
                 decLives();
                 return GWSTATUS_PLAYER_DIED;
+            }
+            if (neededSouls == 0)
+            {
+                increaseScore(bonus);
+                return GWSTATUS_FINISHED_LEVEL;
             }
             if (hitHuman)
             {
@@ -269,9 +276,27 @@ int StudentWorld::move()
         livingActors.push_back(newHumanPed);
     }
     
+    // Adding HolyWater Goodies
+    int ChanceOfHolyWater = 100 + 10 * L;
+    if (randInt(0, ChanceOfHolyWater-1) == 0)
+    {
+        int waterGoodieX = randInt(LEFT_EDGE, RIGHT_EDGE);
+        Actor *newWaterGoodie = new HolyWaterGoodie(this, getPlayerPtr(), waterGoodieX, VIEW_HEIGHT);
+        livingActors.push_back(newWaterGoodie);
+    }
+    
+    // Adding Lost Soul Goodies
+    if (randInt(0, 100 - 1) == 0)
+    {
+        int soulGoodieX = randInt(LEFT_EDGE, RIGHT_EDGE);
+        Actor *newSoulGoodie = new SoulGoodie(this, getPlayerPtr(), soulGoodieX, VIEW_HEIGHT);
+        livingActors.push_back(newSoulGoodie);
+    }
+        
+    
     // UPDATING THE GAME STATUS LINE
     ostringstream statusBar;
-    statusBar << "Score: " << getScore() << "  " << "Lvl: " << getLevel() << "  " << "Souls2Save: " << "Lives: " << getLives() << "  " << "Health: " << getPlayerPtr()->getHealth() << "  " << "Sprays: " << getPlayerPtr()->getSprays() << "  " << "Bonus: " << bonus--;
+    statusBar << "Score: " << getScore() << "  " << "Lvl: " << getLevel() << "  " << "Souls2Save: " << neededSouls << "  " << "Lives: " << getLives() << "  " << "Health: " << getPlayerPtr()->getHealth() << "  " << "Sprays: " << getPlayerPtr()->getSprays() << "  " << "Bonus: " << bonus--;
     string status = statusBar.str();
     setGameStatText(status);
     return GWSTATUS_CONTINUE_GAME;

@@ -13,10 +13,11 @@ const int RIGHT_EDGE = ROAD_CENTER + ROAD_WIDTH/2;
 class Actor: public GraphObject
 {
 public:
-    Actor(StudentWorld* sp, Actor* playerPtr, int health, double horizSpeed, double vertSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth);
+    Actor(StudentWorld* sp, Actor* playerPtr, int health, double horizSpeed, double vertSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth, int numSprays = 0);
     virtual void doSomething() = 0;
     virtual bool isAffectedByWater() = 0;
     void changeHealth(int change) {m_health += change;};
+    void changeSprays(int change) {m_numSprays += change;};
     void commonMove();
     bool isAlive() {return m_isAlive;};
     bool isOverlap(Actor* object, Actor* player);
@@ -31,7 +32,7 @@ public:
     int getHealth() {return m_health;};
     double getHorizSpeed() {return m_horizontalSpeed;};
     double getVertSpeed() {return m_verticalSpeed;};
-    virtual int getSprays() {return 0;};
+    virtual int getSprays() {return m_numSprays;};
     // void changeHorizSpeed(double horizSpeed) {m_horizontalSpeed += horizSpeed;};
     // void changeVertSpeed(double vertSpeed) {m_verticalSpeed += vertSpeed;};
     void setHorizSpeed(double horizSpeed) {m_horizontalSpeed = horizSpeed;};
@@ -47,6 +48,7 @@ private:
     double m_horizontalSpeed;
     double m_verticalSpeed;
     int m_health;
+    int m_numSprays;
 };
 
 class Projectile: public Actor
@@ -76,10 +78,8 @@ public:
     GhostRacer(StudentWorld* sp);
     virtual void doSomething();
     virtual bool isAffectedByWater() {return false;};
-    virtual int getSprays() {return m_numSprays;};
     virtual bool isCollisionAvoidanceActor() {return true;};
 private:
-    int m_numSprays;
 };
 
 class ZombieCab: public Actor
@@ -157,6 +157,7 @@ class HolyWaterGoodie: public Goodie
 {
 public:
     HolyWaterGoodie(StudentWorld* sp, Actor* playerPtr, double startX, double startY);
+    virtual bool isAffectedByWater() {return true;};
     virtual void doSomething();
 };
 

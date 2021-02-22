@@ -5,7 +5,7 @@
 #include <math.h>
 
 // Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
-Actor::Actor(StudentWorld* sp, Actor* playerPtr, int health, double vertSpeed, double horizSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth) : GraphObject(imageID, startX, startY, dir, size, depth)
+Actor::Actor(StudentWorld* sp, Actor* playerPtr, int health, double vertSpeed, double horizSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth, int numSprays) : GraphObject(imageID, startX, startY, dir, size, depth)
 {
     worldPtr = sp;
     GhostRacerPtr = playerPtr;
@@ -15,6 +15,7 @@ Actor::Actor(StudentWorld* sp, Actor* playerPtr, int health, double vertSpeed, d
     m_oilHit = false;
     m_verticalSpeed = vertSpeed;
     m_horizontalSpeed = horizSpeed;
+    m_numSprays = numSprays;
 }
 
 bool Actor::isOverlap(Actor* object, Actor* player)
@@ -307,7 +308,7 @@ void HealingGoodie::doSomething()
     if (commonGoodieAndOverlap())
     {
         int playerHealth = getPlayer()->getHealth();
-        if (playerHealth > 90 && playerHealth != 100)
+        if (playerHealth > 90)
             getPlayer()->changeHealth(100 - playerHealth);
         else
             getPlayer()->changeHealth(10);
@@ -315,25 +316,54 @@ void HealingGoodie::doSomething()
         getWorld()->playSound(SOUND_GOT_GOODIE);
         getWorld()->increaseScore(250);
     }
+    if (getHitWater())
+    {
+        changeHealth(-1);
+        setAlive(false);
+    }
 }
 
-HolyWaterGoodie::HolyWaterGoodie(StudentWorld* sp, Actor* playerPtr, double startX, double startY) : Goodie(sp, playerPtr, IID_HEAL_GOODIE, startX, startY, 1, 90)
+HolyWaterGoodie::HolyWaterGoodie(StudentWorld* sp, Actor* playerPtr, double startX, double startY) : Goodie(sp, playerPtr, IID_HOLY_WATER_GOODIE, startX, startY, 2, 90)
 {
     
 }
 
 void HolyWaterGoodie::doSomething()
 {
-    /* if (commonGoodieAndOverlap())
+    if (commonGoodieAndOverlap())
     {
-        
-    } */
+        getPlayer()->changeSprays(10);
+        setAlive(false);
+        getWorld()->playSound(SOUND_GOT_GOODIE);
+        getWorld()->increaseScore(50);
+    }
+    if (getHitWater())
+    {
+        changeHealth(-1);
+        setAlive(false);
+    }
+}
+
+SoulGoodie::SoulGoodie(StudentWorld* sp, Actor* playerPtr, double startX, double startY) : Goodie(sp, playerPtr, IID_SOUL_GOODIE, startX, startY, 4)
+{
     
 }
 
-GhostRacer::GhostRacer(StudentWorld* sp) : Actor(sp, nullptr, 100, 0, 0, IID_GHOST_RACER, 128, 32, 90, 4.0, 0)
+void SoulGoodie::doSomething()
 {
-    m_numSprays = 10;
+    if (commonGoodieAndOverlap())
+    {
+        getWorld()->decrementNumSoulsNeeded();
+        setAlive(false);
+        getWorld()->playSound(SOUND_GOT_SOUL);
+        getWorld()->increaseScore(100);
+    }
+    setDirection(getDirection() - 10);
+}
+
+GhostRacer::GhostRacer(StudentWorld* sp) : Actor(sp, nullptr, 100, 0, 0, IID_GHOST_RACER, 128, 32, 90, 4.0, 0, 10)
+{
+    
 }
 
 void GhostRacer::doSomething()
@@ -386,7 +416,7 @@ void GhostRacer::doSomething()
         switch(ch)
         {
             case KEY_PRESS_SPACE:
-                if (m_numSprays >= 1)
+                if (getSprays() >= 1)
                 {
                     double cur_y = getY();
                     double cur_x = getX();
@@ -395,7 +425,7 @@ void GhostRacer::doSomething()
                     Actor* newSpray = new Projectile(this->getWorld(), this, (cur_x + delta_x), (cur_y + delta_y), this->getDirection());
                     getWorld()->addActorToContainer(newSpray);
                     getWorld()->playSound(SOUND_PLAYER_SPRAY);
-                    m_numSprays--;
+                    changeSprays(-1);
                 }
                 break;
             case KEY_PRESS_LEFT:

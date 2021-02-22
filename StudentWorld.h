@@ -20,6 +20,7 @@ public:
     void setPlayerPtr(Actor* racerPtr) {playerPtr = racerPtr;};
     void setHitHuman(bool hit) {hitHuman = hit;};
     void addActorToContainer(Actor* newActor) {livingActors.push_back(newActor);};
+    void decrementNumSoulsNeeded() {neededSouls--;};
     Actor* actorInSameLane(Actor* cab); // Determine if there's an actor in the same lane as a cab and return the actor
     Actor* waterOverlap(Actor* projectile);
     ~StudentWorld();
@@ -28,6 +29,7 @@ private:
     std::list<Actor*> livingActors;
     Actor* playerPtr;
     int lastAddedWhiteY;
+    int neededSouls;
     unsigned int bonus;
     bool hitHuman;
 };
