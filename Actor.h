@@ -22,8 +22,11 @@ public:
     bool isOverlap(Actor* object, Actor* player);
     bool getHitWater() {return m_waterHit;};
     void setHitWater(bool wasHit) {m_waterHit = wasHit;};
+    void setHitOilSlick(bool hitOil) {m_oilHit = hitOil;};
+    bool getHitOil() {return m_oilHit;};
     virtual bool isPedestrian() {return false;};
     virtual bool isCollisionAvoidanceActor() {return false;};
+    virtual bool isGoodie() {return false;};
     void setAlive(bool alive) {m_isAlive = alive;};
     int getHealth() {return m_health;};
     double getHorizSpeed() {return m_horizontalSpeed;};
@@ -40,6 +43,7 @@ private:
     Actor* GhostRacerPtr;
     bool m_isAlive;
     bool m_waterHit;
+    bool m_oilHit;
     double m_horizontalSpeed;
     double m_verticalSpeed;
     int m_health;
@@ -97,7 +101,7 @@ class Pedestrian: public Actor
 {
 public:
     Pedestrian(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY, double size);
-    bool isAffectedByWater() {return true;};
+    virtual bool isAffectedByWater() {return true;};
     virtual bool isPedestrian() {return true;};
     virtual bool isCollisionAvoidanceActor() {return true;};
     int getMovePlan() {return m_movementPlanDist;};
@@ -123,6 +127,44 @@ public:
     virtual void doSomething();
 private:
     int m_ticks;
+};
+
+class Goodie: public Actor
+{
+public:
+    Goodie(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY, double size, int dir = 0);
+    virtual bool isAffectedByWater() {return false;};
+    virtual bool isGoodie() {return true;};
+    bool commonGoodieAndOverlap();
+};
+
+class OilSlick: public Goodie
+{
+public:
+    OilSlick(StudentWorld* sp, Actor* playerPtr, double startX, double startY, double size);
+    virtual void doSomething();
+};
+
+class HealingGoodie: public Goodie
+{
+public:
+    HealingGoodie(StudentWorld* sp, Actor* playerPtr, double startX, double startY);
+    virtual bool isAffectedByWater() {return true;};
+    virtual void doSomething();
+};
+
+class HolyWaterGoodie: public Goodie
+{
+public:
+    HolyWaterGoodie(StudentWorld* sp, Actor* playerPtr, double startX, double startY);
+    virtual void doSomething();
+};
+
+class SoulGoodie: public Goodie
+{
+public:
+    SoulGoodie(StudentWorld* sp, Actor* playerPtr, double startX, double startY);
+    virtual void doSomething();
 };
 
 #endif // ACTOR_H_

@@ -239,6 +239,16 @@ int StudentWorld::move()
         }
     }
     
+    // Adding oil slicks
+    int ChanceOilSlick = max(150 - L * 10, 40);
+    if (randInt(0, ChanceOilSlick - 1) == 0)
+    {
+        int randomX = randInt(LEFT_EDGE, RIGHT_EDGE);
+        int oilSize = randInt(2, 5);
+        Actor *newOil = new OilSlick(this, getPlayerPtr(), randomX, VIEW_HEIGHT, oilSize);
+        livingActors.push_back(newOil);
+    }
+    
     // Adding zombie Peds
     int pedY = VIEW_HEIGHT;
     

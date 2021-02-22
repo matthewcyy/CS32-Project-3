@@ -12,6 +12,7 @@ Actor::Actor(StudentWorld* sp, Actor* playerPtr, int health, double vertSpeed, d
     m_health = health;
     m_isAlive = true;
     m_waterHit = false;
+    m_oilHit = false;
     m_verticalSpeed = vertSpeed;
     m_horizontalSpeed = horizSpeed;
 }
@@ -103,6 +104,12 @@ void ZombieCab::doSomething()
         setAlive(false);
         getWorld()->increaseScore(200);
         getWorld()->playSound(SOUND_VEHICLE_DIE);
+        if(randInt(1, 5) == 5)
+        {
+            int oilSize = randInt(2, 5);
+            Actor* newOil = new OilSlick(getWorld(), getPlayer(), getX(), getY(), oilSize); // MAKE OIL SLICK ONCE IMPLEMENTED
+            getWorld()->addActorToContainer(newOil);
+        }
     }
     double cabX = getX();
     double cabY = getY();
@@ -219,6 +226,14 @@ void ZombiePedestrian::doSomething()
     if (getHitWater())
     {
         changeHealth(-1);
+        if (getHealth() <= 0)
+        {
+            if(randInt(1, 5) == 5)
+            {
+                Actor *newHeal = new HealingGoodie(getWorld(), getPlayer(), getX(), getY());
+                getWorld()->addActorToContainer(newHeal);
+            }
+        }
         setHitWater(false);
     }
     if (getHealth() <= 0)
@@ -257,6 +272,65 @@ void ZombiePedestrian::doSomething()
         commonMovePlan();
 }
 
+Goodie::Goodie(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY, double size, int dir) : Actor(sp, playerPtr, 1, -4, 0, imageID, startX, startY, dir, size, 2)
+{
+    
+}
+
+bool Goodie::commonGoodieAndOverlap()
+{
+    commonMove();
+    return isOverlap(this, getPlayer());
+}
+
+OilSlick::OilSlick(StudentWorld* sp, Actor* playerPtr, double startX, double startY, double size) : Goodie(sp, playerPtr, IID_OIL_SLICK, startX, startY, size)
+{
+    
+}
+
+void OilSlick::doSomething()
+{
+    if(commonGoodieAndOverlap())
+    {
+        getWorld()->playSound(SOUND_OIL_SLICK);
+        getPlayer()->setHitOilSlick(true);
+    }
+}
+
+HealingGoodie::HealingGoodie(StudentWorld* sp, Actor* playerPtr, double startX, double startY) : Goodie(sp, playerPtr, IID_HEAL_GOODIE, startX, startY, 1)
+{
+    
+}
+
+void HealingGoodie::doSomething()
+{
+    if (commonGoodieAndOverlap())
+    {
+        int playerHealth = getPlayer()->getHealth();
+        if (playerHealth > 90 && playerHealth != 100)
+            getPlayer()->changeHealth(100 - playerHealth);
+        else
+            getPlayer()->changeHealth(10);
+        setAlive(false);
+        getWorld()->playSound(SOUND_GOT_GOODIE);
+        getWorld()->increaseScore(250);
+    }
+}
+
+HolyWaterGoodie::HolyWaterGoodie(StudentWorld* sp, Actor* playerPtr, double startX, double startY) : Goodie(sp, playerPtr, IID_HEAL_GOODIE, startX, startY, 1, 90)
+{
+    
+}
+
+void HolyWaterGoodie::doSomething()
+{
+    /* if (commonGoodieAndOverlap())
+    {
+        
+    } */
+    
+}
+
 GhostRacer::GhostRacer(StudentWorld* sp) : Actor(sp, nullptr, 100, 0, 0, IID_GHOST_RACER, 128, 32, 90, 4.0, 0)
 {
     m_numSprays = 10;
@@ -266,6 +340,25 @@ void GhostRacer::doSomething()
 {
     if (!isAlive())
         return;
+    if (getHealth() <= 0)
+    {
+        setAlive(false);
+        getWorld()->playSound(SOUND_PLAYER_DIE);
+    }
+    if(getHitOil())
+    {
+        int multiplier = 0;
+        while (multiplier == 0)
+            multiplier = randInt(-1, 1);
+        int randomAngle = multiplier*randInt(5, 20);
+        int newAngle = getDirection() + randomAngle;
+        if (newAngle > 120)
+            newAngle = 120;
+        else if (newAngle < 60)
+            newAngle = 60;
+        setDirection(newAngle);
+        setHitOilSlick(false);
+    }
     bool hitSide = false;
     if (getX() <= LEFT_EDGE)
     {
