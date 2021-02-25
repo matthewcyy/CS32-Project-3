@@ -17,14 +17,14 @@ public:
     virtual void doSomething() = 0;
     virtual bool isAffectedByWater() = 0;
     void changeHealth(int change) {m_health += change;};
-    void changeSprays(int change) {m_numSprays += change;};
+    void changeSprays(int change) {m_numSprays += change;}; // Move this to GhostRacer class
     void commonMove();
     bool isAlive() {return m_isAlive;};
     bool isOverlap(Actor* object, Actor* player);
     bool getHitWater() {return m_waterHit;};
     void setHitWater(bool wasHit) {m_waterHit = wasHit;};
-    void setHitOilSlick(bool hitOil) {m_oilHit = hitOil;};
-    bool getHitOil() {return m_oilHit;};
+    void setHitOilSlick(bool hitOil) {m_oilHit = hitOil;}; // Can remove this or move to GhostRacer and instead have void spin
+    bool getHitOil() {return m_oilHit;}; // Move this to GhostRacer class or remove this and instead use void spin
     virtual bool isPedestrian() {return false;};
     virtual bool isCollisionAvoidanceActor() {return false;};
     virtual bool isGoodie() {return false;};
@@ -41,14 +41,14 @@ public:
     Actor* getPlayer() {return GhostRacerPtr;};
 private:
     StudentWorld* worldPtr;
-    Actor* GhostRacerPtr;
+    Actor* GhostRacerPtr; // Change this to GhostRacer* GhostRacerPtr
     bool m_isAlive;
     bool m_waterHit;
-    bool m_oilHit;
+    bool m_oilHit; // Can remove this or move to GhostRacer class
     double m_horizontalSpeed;
     double m_verticalSpeed;
     int m_health;
-    int m_numSprays;
+    int m_numSprays; // Move this to Ghost Racer class
 };
 
 class Projectile: public Actor

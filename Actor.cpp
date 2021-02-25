@@ -146,7 +146,7 @@ void ZombieCab::doSomething()
             return;
         }
     if (getVertSpeed() <= getPlayer()->getVertSpeed() && actorInLane != nullptr && actorInLaneY < cabY)
-        if (cabY - actorInLaneY < 96)
+        if (cabY - actorInLaneY < 96 && actorInLane != getPlayer())
         {
             setVertSpeed(getVertSpeed() + 0.5);
             return;

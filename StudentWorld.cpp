@@ -44,10 +44,12 @@ Actor* StudentWorld::actorInSameLane(Actor *cab)
             double actorY = (*actorIt)->getY();
             bool isInLane = (cabX - actorX >= 0 && cabX - actorX <= ROAD_WIDTH/6) || (cabX - actorX < 0 && actorX - cabX < ROAD_WIDTH/6); // Distance from center of lane (where cab is) to its borders is ROAD_WIDTH/6. However, it's considered to be in the lane if it's on the left boundary but not the right boundary
             if (isInLane)
+            {
                 if (closestActorInLane == nullptr)
                     closestActorInLane = (*actorIt);
                 if (closestActorInLane != nullptr && abs(closestActorInLane->getY() - cabY) > abs(actorY - cabY))
                     closestActorInLane = (*actorIt);
+            }
         }
         actorIt++;
     }
