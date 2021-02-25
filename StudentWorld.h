@@ -6,6 +6,7 @@
 #include <list>
 
 class Actor;
+class GhostRacer;
 
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
@@ -16,8 +17,8 @@ public:
     virtual int init();
     virtual int move();
     virtual void cleanUp();
-    Actor* getPlayerPtr() {return playerPtr;};
-    void setPlayerPtr(Actor* racerPtr) {playerPtr = racerPtr;};
+    GhostRacer* getPlayerPtr() {return playerPtr;};
+    void setPlayerPtr(GhostRacer* racerPtr) {playerPtr = racerPtr;};
     void setHitHuman(bool hit) {hitHuman = hit;};
     void addActorToContainer(Actor* newActor) {livingActors.push_back(newActor);};
     void decrementNumSoulsNeeded() {neededSouls--;};
@@ -27,7 +28,7 @@ public:
 
 private:
     std::list<Actor*> livingActors;
-    Actor* playerPtr;
+    GhostRacer* playerPtr;
     int lastAddedWhiteY;
     int neededSouls;
     unsigned int bonus;

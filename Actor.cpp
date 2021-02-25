@@ -5,17 +5,15 @@
 #include <math.h>
 
 // Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
-Actor::Actor(StudentWorld* sp, Actor* playerPtr, int health, double vertSpeed, double horizSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth, int numSprays) : GraphObject(imageID, startX, startY, dir, size, depth)
+Actor::Actor(StudentWorld* sp, GhostRacer* playerPtr, int health, double vertSpeed, double horizSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth) : GraphObject(imageID, startX, startY, dir, size, depth)
 {
     worldPtr = sp;
     GhostRacerPtr = playerPtr;
     m_health = health;
     m_isAlive = true;
     m_waterHit = false;
-    m_oilHit = false;
     m_verticalSpeed = vertSpeed;
     m_horizontalSpeed = horizSpeed;
-    m_numSprays = numSprays;
 }
 
 bool Actor::isOverlap(Actor* object, Actor* player)
@@ -47,7 +45,7 @@ void Actor::commonMove() // Setting up a general movement function since all act
     }
 }
 
-BorderLine::BorderLine(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY) : Actor(sp, playerPtr, 0, -4, 0, imageID, startX, startY, 0, 2.0, 2)
+BorderLine::BorderLine(StudentWorld* sp, GhostRacer* playerPtr, int imageID, double startX, double startY) : Actor(sp, playerPtr, 0, -4, 0, imageID, startX, startY, 0, 2.0, 2)
 {
 }
 
@@ -56,7 +54,7 @@ void BorderLine::doSomething()
     commonMove();
 }
 
-Projectile::Projectile(StudentWorld* sp, Actor* playerPtr, double startX, double startY, int dir) : Actor(sp, playerPtr, 0, 0, 0, IID_HOLY_WATER_PROJECTILE, startX, startY, dir, 1.0, 1)
+Projectile::Projectile(StudentWorld* sp, GhostRacer* playerPtr, double startX, double startY, int dir) : Actor(sp, playerPtr, 0, 0, 0, IID_HOLY_WATER_PROJECTILE, startX, startY, dir, 1.0, 1)
 {
     m_countMoves = 0;
 }
@@ -85,7 +83,7 @@ void Projectile::doSomething()
         setAlive(false);
 }
 
-ZombieCab::ZombieCab(StudentWorld* sp, Actor* playerPtr, double vertSpeed, double startX, double startY) : Actor(sp, playerPtr, 3, vertSpeed, 0, IID_ZOMBIE_CAB, startX, startY, 90, 4.0, 0)
+ZombieCab::ZombieCab(StudentWorld* sp, GhostRacer* playerPtr, double vertSpeed, double startX, double startY) : Actor(sp, playerPtr, 3, vertSpeed, 0, IID_ZOMBIE_CAB, startX, startY, 90, 4.0, 0)
 {
     m_hasDamagedPlayer = false;
     m_planLength = 0;
@@ -161,7 +159,7 @@ void ZombieCab::doSomething()
     }
 }
 
-Pedestrian::Pedestrian(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY, double size) : Actor(sp, playerPtr, 2, -4, 0, imageID, startX, startY, 0, size, 0)
+Pedestrian::Pedestrian(StudentWorld* sp, GhostRacer* playerPtr, int imageID, double startX, double startY, double size) : Actor(sp, playerPtr, 2, -4, 0, imageID, startX, startY, 0, size, 0)
 {
     m_movementPlanDist = 0;
 }
@@ -179,7 +177,7 @@ void Pedestrian::commonMovePlan()
         setDirection(0);
 }
 
-HumanPedestrian::HumanPedestrian(StudentWorld* sp, Actor* playerPtr, double startX, double startY) : Pedestrian(sp, playerPtr, IID_HUMAN_PED, startX, startY, 2)
+HumanPedestrian::HumanPedestrian(StudentWorld* sp, GhostRacer* playerPtr, double startX, double startY) : Pedestrian(sp, playerPtr, IID_HUMAN_PED, startX, startY, 2)
 {
     
 }
@@ -210,7 +208,7 @@ void HumanPedestrian::doSomething()
         commonMovePlan();
 }
 
-ZombiePedestrian::ZombiePedestrian(StudentWorld* sp, Actor* playerPtr, double startX, double startY) : Pedestrian(sp, playerPtr, IID_ZOMBIE_PED, startX, startY, 3)
+ZombiePedestrian::ZombiePedestrian(StudentWorld* sp, GhostRacer* playerPtr, double startX, double startY) : Pedestrian(sp, playerPtr, IID_ZOMBIE_PED, startX, startY, 3)
 {
     m_ticks = 0;
 }
@@ -273,7 +271,7 @@ void ZombiePedestrian::doSomething()
         commonMovePlan();
 }
 
-Goodie::Goodie(StudentWorld* sp, Actor* playerPtr, int imageID, double startX, double startY, double size, int dir) : Actor(sp, playerPtr, 1, -4, 0, imageID, startX, startY, dir, size, 2)
+Goodie::Goodie(StudentWorld* sp, GhostRacer* playerPtr, int imageID, double startX, double startY, double size, int dir) : Actor(sp, playerPtr, 1, -4, 0, imageID, startX, startY, dir, size, 2)
 {
     
 }
@@ -284,7 +282,7 @@ bool Goodie::commonGoodieAndOverlap()
     return isOverlap(this, getPlayer());
 }
 
-OilSlick::OilSlick(StudentWorld* sp, Actor* playerPtr, double startX, double startY, double size) : Goodie(sp, playerPtr, IID_OIL_SLICK, startX, startY, size)
+OilSlick::OilSlick(StudentWorld* sp, GhostRacer* playerPtr, double startX, double startY, double size) : Goodie(sp, playerPtr, IID_OIL_SLICK, startX, startY, size)
 {
     
 }
@@ -298,7 +296,7 @@ void OilSlick::doSomething()
     }
 }
 
-HealingGoodie::HealingGoodie(StudentWorld* sp, Actor* playerPtr, double startX, double startY) : Goodie(sp, playerPtr, IID_HEAL_GOODIE, startX, startY, 1)
+HealingGoodie::HealingGoodie(StudentWorld* sp, GhostRacer* playerPtr, double startX, double startY) : Goodie(sp, playerPtr, IID_HEAL_GOODIE, startX, startY, 1)
 {
     
 }
@@ -323,7 +321,7 @@ void HealingGoodie::doSomething()
     }
 }
 
-HolyWaterGoodie::HolyWaterGoodie(StudentWorld* sp, Actor* playerPtr, double startX, double startY) : Goodie(sp, playerPtr, IID_HOLY_WATER_GOODIE, startX, startY, 2, 90)
+HolyWaterGoodie::HolyWaterGoodie(StudentWorld* sp, GhostRacer* playerPtr, double startX, double startY) : Goodie(sp, playerPtr, IID_HOLY_WATER_GOODIE, startX, startY, 2, 90)
 {
     
 }
@@ -344,7 +342,7 @@ void HolyWaterGoodie::doSomething()
     }
 }
 
-SoulGoodie::SoulGoodie(StudentWorld* sp, Actor* playerPtr, double startX, double startY) : Goodie(sp, playerPtr, IID_SOUL_GOODIE, startX, startY, 4)
+SoulGoodie::SoulGoodie(StudentWorld* sp, GhostRacer* playerPtr, double startX, double startY) : Goodie(sp, playerPtr, IID_SOUL_GOODIE, startX, startY, 4)
 {
     
 }
@@ -361,9 +359,10 @@ void SoulGoodie::doSomething()
     setDirection(getDirection() - 10);
 }
 
-GhostRacer::GhostRacer(StudentWorld* sp) : Actor(sp, nullptr, 100, 0, 0, IID_GHOST_RACER, 128, 32, 90, 4.0, 0, 10)
+GhostRacer::GhostRacer(StudentWorld* sp) : Actor(sp, nullptr, 100, 0, 0, IID_GHOST_RACER, 128, 32, 90, 4.0, 0)
 {
-    
+    m_numSprays = 10; // Move this to Ghost Racer class
+    m_oilHit = false; // Can remove this or move to GhostRacer class
 }
 
 void GhostRacer::doSomething()
