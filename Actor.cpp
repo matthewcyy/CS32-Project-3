@@ -133,22 +133,25 @@ void ZombieCab::doSomething()
         }
     }
     commonMove();
-    Actor* actorInLane = getWorld()->actorInSameLane(this);
-    double actorInLaneY = -1;
-    if (actorInLane != nullptr)
-        actorInLaneY = actorInLane->getY();
-    if (getVertSpeed() > getPlayer()->getVertSpeed() && actorInLane != nullptr && actorInLaneY > cabY)
-        if (actorInLaneY - cabY < 96)
-        {
-            setVertSpeed(getVertSpeed() - 0.5);
-            return;
-        }
-    if (getVertSpeed() <= getPlayer()->getVertSpeed() && actorInLane != nullptr && actorInLaneY < cabY)
-        if (cabY - actorInLaneY < 96 && actorInLane != getPlayer())
-        {
-            setVertSpeed(getVertSpeed() + 0.5);
-            return;
-        }
+    Actor* frontActorInLane = getWorld()->actorInSameLaneInFront(this);
+    Actor* behindActorInLane = getWorld()->actorInSameLaneBehind(this);
+    double frontActorInLaneY = -1;
+    double behindActorInLaneY = -1;
+
+    if (frontActorInLane != nullptr)
+        frontActorInLaneY = frontActorInLane->getY();
+    if (behindActorInLane != nullptr)
+        behindActorInLaneY = behindActorInLane->getY();
+    if (getVertSpeed() > getPlayer()->getVertSpeed() && frontActorInLane != nullptr && frontActorInLaneY - cabY < 96)
+    {
+        setVertSpeed(getVertSpeed() - 0.5);
+        return;
+    }
+    if (getVertSpeed() <= getPlayer()->getVertSpeed() && behindActorInLane != nullptr && cabY - behindActorInLaneY < 96 && behindActorInLane != getPlayer())
+    {
+        setVertSpeed(getVertSpeed() + 0.5);
+        return;
+    }
     setPlanLength(getPlanLength() - 1);
     if (getPlanLength() > 0)
         return;

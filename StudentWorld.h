@@ -22,7 +22,8 @@ public:
     void setHitHuman(bool hit) {hitHuman = hit;};
     void addActorToContainer(Actor* newActor) {livingActors.push_back(newActor);};
     void decrementNumSoulsNeeded() {neededSouls--;};
-    Actor* actorInSameLane(Actor* cab); // Determine if there's an actor in the same lane as a cab and return the actor
+    Actor* actorInSameLaneInFront(Actor* cab); // Determine if there's an actor in the same lane as a cab and return the actor
+    Actor* actorInSameLaneBehind(Actor* cab);
     Actor* waterOverlap(Actor* projectile);
     ~StudentWorld();
 
@@ -33,6 +34,7 @@ private:
     int neededSouls;
     unsigned int bonus;
     bool hitHuman;
+    Actor* isInSameLane(Actor* cab, Actor* other);
 };
 
 #endif // STUDENTWORLD_H_

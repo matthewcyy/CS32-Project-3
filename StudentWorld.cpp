@@ -28,32 +28,65 @@ StudentWorld::StudentWorld(string assetPath)
 // Center of white line lanes = ROAD_CENTER, ROAD_CENTER - ROAD_WIDTH/3, ROAD_CENTER + ROAD_WIDTH/3
 // Distance from center of lane to left border is ROAD_CENTER - (ROAD_CENTER - ROAD_WIDTH/2 + ROAD_WIDTH/3) = ROAD_WIDTH/2 - ROAD_WIDTH/3 = ROAD_WIDTH/6
 // Since the cab will start in the center, and actors are in a lane if its center is on or to the left boundary of lane K, and to the left of but not on the right boundary of lane K...
-Actor* StudentWorld::actorInSameLane(Actor *cab)
+Actor* StudentWorld::isInSameLane(Actor* cab, Actor* other)
+{
+    double cabX = cab->getX();
+    double actorX = other->getX();
+    bool isInLane = (cabX - actorX >= 0 && cabX - actorX <= ROAD_WIDTH/6) || (cabX - actorX < 0 && actorX - cabX < ROAD_WIDTH/6); // Distance from center of lane (where cab is) to its borders is ROAD_WIDTH/6. However, it's considered to be in the lane if it's on the left boundary but not the right boundary
+    if (isInLane && other->isCollisionAvoidanceActor())
+        return other;
+    else
+        return nullptr;
+}
+
+Actor* StudentWorld::actorInSameLaneInFront(Actor *cab)
 {
     list<Actor*> :: iterator actorIt;
     actorIt = livingActors.begin();
-    double cabX = cab->getX();
-    double cabY = cab->getY();
     Actor* closestActorInLane = nullptr;
-    double playerX = getPlayerPtr()->getX();
-    double playerY = getPlayerPtr()->getY();
-    bool isInLane = (cabX - playerX >= 0 && cabX - playerX <= ROAD_WIDTH/6) || (cabX - playerX < 0 && playerY - cabX < ROAD_WIDTH/6);
-    if (isInLane)
-        closestActorInLane = getPlayerPtr();
+    double cabY = cab->getY();
+    Actor* actorInLane = isInSameLane(cab, getPlayerPtr());
+    double actorInLaneY = -1;
+    if (actorInLane != nullptr)
+        closestActorInLane = actorInLane;
     while (actorIt != livingActors.end())
     {
-        if ((*actorIt)->isCollisionAvoidanceActor() && cab != *actorIt) // If find collision avoidance actor
+        actorInLane = isInSameLane(cab, *(actorIt));
+        if (actorInLane != nullptr)
+            actorInLaneY = actorInLane->getY();
+        if (actorInLane != nullptr && cab != *actorIt) // If find collision avoidance actor
         {
-            double actorX = (*actorIt)->getX();
-            double actorY = (*actorIt)->getY();
-            bool isInLane = (cabX - actorX >= 0 && cabX - actorX <= ROAD_WIDTH/6) || (cabX - actorX < 0 && actorX - cabX < ROAD_WIDTH/6); // Distance from center of lane (where cab is) to its borders is ROAD_WIDTH/6. However, it's considered to be in the lane if it's on the left boundary but not the right boundary
-            if (isInLane)
-            {
-                if (closestActorInLane == nullptr)
+            if (closestActorInLane == nullptr && actorInLaneY > cabY)
+                    closestActorInLane = actorInLane;
+            if (closestActorInLane != nullptr && actorInLaneY > cabY && closestActorInLane->getY() - cabY > actorInLaneY - cabY)
                     closestActorInLane = (*actorIt);
-                if (closestActorInLane != nullptr && abs(closestActorInLane->getY() - cabY) > abs(actorY - cabY))
+        }
+        actorIt++;
+    }
+    return closestActorInLane;
+}
+
+Actor* StudentWorld::actorInSameLaneBehind(Actor *cab)
+{
+    list<Actor*> :: iterator actorIt;
+    actorIt = livingActors.begin();
+    Actor* closestActorInLane = nullptr;
+    double cabY = cab->getY();
+    Actor* actorInLane = isInSameLane(cab, getPlayerPtr());
+    double actorInLaneY = -1;
+    if (actorInLane != nullptr)
+        closestActorInLane = actorInLane;
+    while (actorIt != livingActors.end())
+    {
+        actorInLane = isInSameLane(cab, *(actorIt));
+        if (actorInLane != nullptr)
+            actorInLaneY = actorInLane->getY();
+        if (actorInLane != nullptr && cab != *actorIt) // If find collision avoidance actor
+        {
+            if (closestActorInLane == nullptr && actorInLaneY < cabY)
+                    closestActorInLane = actorInLane;
+            if (closestActorInLane != nullptr && actorInLaneY < cabY && cabY - closestActorInLane->getY() > cabY - actorInLaneY)
                     closestActorInLane = (*actorIt);
-            }
         }
         actorIt++;
     }
@@ -172,10 +205,9 @@ int StudentWorld::move()
     
     // Adding zombie cabs
     int ChanceVehicle = max(100 - L*10, 20);
-    if (randInt(0, 0) == 0) // CHANGE THIS BACK TO CHANCEVEHICLE - 1
+    if (randInt(0, ChanceVehicle - 1) == 0) // CHANGE THIS BACK TO CHANCEVEHICLE - 1
     {
         int cur_lane = randInt(0, 2); // 0 = left lane, 1 = middle lane, 2 = right lane
-        cur_lane = 0; // REMOVE THIS AFTER TESTING
         int laneForCab = -1;
         list<Actor*> :: iterator actorIt;
         int countChecks = 0; // Determining how many times we check a lane
