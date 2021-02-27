@@ -17,18 +17,18 @@ public:
     virtual int init();
     virtual int move();
     virtual void cleanUp();
-    GhostRacer* getPlayerPtr() {return playerPtr;};
-    void setPlayerPtr(GhostRacer* racerPtr) {playerPtr = racerPtr;};
-    void setHitHuman(bool hit) {hitHuman = hit;};
-    void addActorToContainer(Actor* newActor) {livingActors.push_back(newActor);};
+    GhostRacer* getPlayerPtr() const {return playerPtr;};
+    void setPlayerPtr(GhostRacer* racerPtr) {playerPtr = racerPtr;}; // Assigning the GhostRacer pointer after initialization
+    void setHitHuman(bool hit) {hitHuman = hit;}; // Determining if a human was hit so that the game may end
+    void addActorToContainer(Actor* newActor) {livingActors.push_back(newActor);}; // Here to add actors that are created by other actors, such as projectilves, oil slicks, and healing goodies
     void decrementNumSoulsNeeded() {neededSouls--;};
     Actor* actorInSameLaneInFront(Actor* cab); // Determine if there's an actor in the same lane as a cab and return the actor
-    Actor* actorInSameLaneBehind(Actor* cab);
-    Actor* waterOverlap(Actor* projectile);
+    Actor* actorInSameLaneBehind(Actor* cab); // Determine if there's an actor in the same lane as a cab and return the actor
+    Actor* waterOverlap(Actor* projectile); // Determine if any actors overlap with water
     ~StudentWorld();
 
 private:
-    std::list<Actor*> livingActors;
+    std::list<Actor*> livingActors; // Container of actors
     GhostRacer* playerPtr;
     int lastAddedWhiteY;
     int neededSouls;

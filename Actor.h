@@ -15,30 +15,26 @@ class Actor: public GraphObject
 {
 public:
     Actor(StudentWorld* sp, GhostRacer* playerPtr, int health, double horizSpeed, double vertSpeed, int imageID, double startX, double startY, int dir, double size, unsigned int depth);
-    virtual void doSomething() = 0;
-    virtual bool isAffectedByWater() = 0;
+    virtual void doSomething() = 0; // What each actor will do
+    virtual bool isAffectedByWater() = 0; // Is actor affected by water projectile
     void changeHealth(int change) {m_health += change;};
-    void commonMove();
-    bool isAlive() {return m_isAlive;};
-    bool isOverlap(Actor* object, Actor* player);
-    bool getHitWater() {return m_waterHit;};
-    void setHitWater(bool wasHit) {m_waterHit = wasHit;};
-    virtual bool isPedestrian() {return false;};
-    virtual bool isCollisionAvoidanceActor() {return false;};
-    virtual bool isGoodie() {return false;};
+    void commonMove(); // Movement pattern common to all actors, which makes them move vertically relative to GhostRacer's speed
+    bool isAlive() const {return m_isAlive;};
+    bool isOverlap(Actor* object, Actor* player) const;
+    bool getHitWater() const {return m_waterHit;};
+    void setHitWater(bool wasHit) {m_waterHit = wasHit;}; // Used to determine if an actor was hit by water and if so, do something relevant to it
+    virtual bool isCollisionAvoidanceActor() const {return false;}; // Used to determine if ZombieCab can be created in a specific lane
     void setAlive(bool alive) {m_isAlive = alive;};
-    int getHealth() {return m_health;};
-    double getHorizSpeed() {return m_horizontalSpeed;};
-    double getVertSpeed() {return m_verticalSpeed;};
-    // void changeHorizSpeed(double horizSpeed) {m_horizontalSpeed += horizSpeed;};
-    // void changeVertSpeed(double vertSpeed) {m_verticalSpeed += vertSpeed;};
+    int getHealth() const {return m_health;};
+    double getHorizSpeed() const {return m_horizontalSpeed;};
+    double getVertSpeed() const {return m_verticalSpeed;};
     void setHorizSpeed(double horizSpeed) {m_horizontalSpeed = horizSpeed;};
     void setVertSpeed(double vertSpeed) {m_verticalSpeed = vertSpeed;};
-    StudentWorld* getWorld() {return worldPtr;};
-    GhostRacer* getPlayer() {return GhostRacerPtr;};
+    StudentWorld* getWorld() const {return worldPtr;};
+    GhostRacer* getPlayer() const {return GhostRacerPtr;};
 private:
     StudentWorld* worldPtr;
-    GhostRacer* GhostRacerPtr; // Change this to GhostRacer* GhostRacerPtr
+    GhostRacer* GhostRacerPtr;
     bool m_isAlive;
     bool m_waterHit;
     double m_horizontalSpeed;
@@ -73,11 +69,11 @@ public:
     GhostRacer(StudentWorld* sp);
     virtual void doSomething();
     virtual bool isAffectedByWater() {return false;};
-    virtual bool isCollisionAvoidanceActor() {return true;};
-    void changeSprays(int change) {m_numSprays += change;}; // Move this to GhostRacer class
-    void setHitOilSlick(bool hitOil) {m_oilHit = hitOil;}; // Can remove this or move to GhostRacer and instead have void spin
+    virtual bool isCollisionAvoidanceActor() const {return true;};
+    void changeSprays(int change) {m_numSprays += change;}; // Used to change number of sprays (increment or decrement)
+    void setHitOilSlick(bool hitOil) {m_oilHit = hitOil;};
     int getSprays() {return m_numSprays;};
-    bool getHitOil() {return m_oilHit;}; // Move this to GhostRacer class or remove this and instead use void spin
+    bool getHitOil() {return m_oilHit;};
 
 private:
     int m_numSprays; // Move this to Ghost Racer class
@@ -89,7 +85,7 @@ class ZombieCab: public Actor
 public:
     ZombieCab(StudentWorld* sp, GhostRacer* playerPtr, double vertSpeed, double startX, double startY);
     virtual void doSomething();
-    virtual bool isCollisionAvoidanceActor() {return true;};
+    virtual bool isCollisionAvoidanceActor() const {return true;};
     virtual bool isAffectedByWater() {return true;};
     void setDamagedPlayer(bool hasDamaged) {m_hasDamagedPlayer = hasDamaged;};
     int getPlanLength() {return m_planLength;};
@@ -101,11 +97,10 @@ private:
 
 class Pedestrian: public Actor
 {
-public:
+public: // Common subclass for pedestrians, based around their moveplans
     Pedestrian(StudentWorld* sp, GhostRacer* playerPtr, int imageID, double startX, double startY, double size);
     virtual bool isAffectedByWater() {return true;};
-    virtual bool isPedestrian() {return true;};
-    virtual bool isCollisionAvoidanceActor() {return true;};
+    virtual bool isCollisionAvoidanceActor() const {return true;};
     int getMovePlan() {return m_movementPlanDist;};
     void setMovePlan(int setMove) {m_movementPlanDist = setMove;};
     void commonMovePlan();
@@ -131,12 +126,11 @@ private:
     int m_ticks;
 };
 
-class Goodie: public Actor
+class Goodie: public Actor // Common subclass for goodie, based around actors that do something to GhostRacer when they overlap
 {
 public:
     Goodie(StudentWorld* sp, GhostRacer* playerPtr, int imageID, double startX, double startY, double size, int dir = 0);
     virtual bool isAffectedByWater() {return false;};
-    virtual bool isGoodie() {return true;};
     bool commonGoodieAndOverlap();
 };
 
